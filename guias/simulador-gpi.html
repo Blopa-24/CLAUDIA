@@ -1,0 +1,816 @@
+<title>Simulador Gestión Pública Intercultural</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
+<style>
+:root {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --ink: #1b2330;
+  --ink-2: #4b5563;
+  --muted: #7b8494;
+  --line: #dde3ea;
+  --accent: #1f5fae;
+  --accent-ink: #ffffff;
+  --a: #2a78d6; --a-ink: #1f5fae; --a-tint: #e7f0fb;
+  --b: #eb6834; --b-ink: #b8481a; --b-tint: #fdeee6;
+  --c: #1baf7a; --c-ink: #0f7a53; --c-tint: #e3f5ed;
+  --good: #15803d; --good-tint: #e6f4ea;
+  --bad: #b42318; --bad-tint: #fdecea;
+  --warn: #b45309; --warn-tint: #fdf3e2;
+  --shadow: 0 1px 2px rgba(20, 35, 60, .06), 0 6px 20px rgba(20, 35, 60, .06);
+  --display: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #11151c; --surface: #19202a; --surface-2: #222b37; --ink: #eef2f7; --ink-2: #c3cad4; --muted: #8e97a4; --line: #2f3a48;
+    --accent: #5b9ae6; --accent-ink: #0d1520;
+    --a: #3987e5; --a-ink: #8bb9f2; --a-tint: #1b2a3d;
+    --b: #e0703f; --b-ink: #f3a483; --b-tint: #3a2419;
+    --c: #22b07d; --c-ink: #6fd3ac; --c-tint: #16322a;
+    --good: #4cc27a; --good-tint: #173222; --bad: #f08076; --bad-tint: #3a1b19; --warn: #f0b35a; --warn-tint: #36291a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #11151c; --surface: #19202a; --surface-2: #222b37; --ink: #eef2f7; --ink-2: #c3cad4; --muted: #8e97a4; --line: #2f3a48;
+  --accent: #5b9ae6; --accent-ink: #0d1520;
+  --a: #3987e5; --a-ink: #8bb9f2; --a-tint: #1b2a3d;
+  --b: #e0703f; --b-ink: #f3a483; --b-tint: #3a2419;
+  --c: #22b07d; --c-ink: #6fd3ac; --c-tint: #16322a;
+  --good: #4cc27a; --good-tint: #173222; --bad: #f08076; --bad-tint: #3a1b19; --warn: #f0b35a; --warn-tint: #36291a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 780px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 64px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.2; }
+p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Encabezado */
+.top { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--display); font-weight: 800; font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.top h1 { font-size: clamp(28px, 5vw, 38px); font-weight: 900; }
+.top p { color: var(--ink-2); max-width: 62ch; }
+.ejes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--display); font-weight: 800; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; }
+.chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.chip.A { background: var(--a-tint); color: var(--a-ink); }
+.chip.B { background: var(--b-tint); color: var(--b-ink); }
+.chip.C { background: var(--c-tint); color: var(--c-ink); }
+
+/* Pestañas */
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--surface-2); padding: 6px; border-radius: 16px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+.tab { border: 0; background: transparent; color: var(--ink-2); font-family: var(--display); font-weight: 800; font-size: 15.5px; padding: 11px 8px; border-radius: 11px; display: grid; gap: 1px; }
+.tab small { font-family: var(--body); font-weight: 600; font-size: 12px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.tab[aria-selected="true"] small { color: var(--ink-2); }
+
+.panel { display: grid; gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; box-shadow: var(--shadow); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.spread { justify-content: space-between; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; padding: 10px 16px; font-family: var(--display); font-weight: 800; font-size: 15px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.good { background: var(--good-tint); border-color: transparent; color: var(--good); }
+.btn.bad { background: var(--warn-tint); border-color: transparent; color: var(--warn); }
+.btn:disabled { opacity: .45; cursor: default; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; background: var(--surface-2); border-radius: 12px; padding: 4px; }
+.seg button { border: 0; background: transparent; color: var(--ink-2); border-radius: 9px; padding: 6px 12px; font-family: var(--display); font-weight: 800; font-size: 13.5px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.label { font-family: var(--display); font-weight: 800; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.progress > div { height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
+.stats { font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: 14.5px; }
+
+/* Tarjetas */
+.flash { perspective: 1400px; }
+.flash-inner { position: relative; min-height: 290px; transition: transform .5s cubic-bezier(.2, .7, .2, 1); transform-style: preserve-3d; cursor: pointer; }
+.flash.flipped .flash-inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 22px; padding: 26px; display: grid; align-content: center; gap: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--surface); }
+.face.back { transform: rotateY(180deg); }
+.face .term { font-family: var(--display); font-weight: 900; font-size: clamp(26px, 5vw, 36px); text-align: center; }
+.face .hint { text-align: center; color: var(--muted); font-size: 14px; }
+.face .def { font-size: 18.5px; line-height: 1.55; }
+.face .src { color: var(--muted); font-size: 14px; }
+.face .tagline { position: absolute; top: 16px; left: 18px; }
+.flash.A .face { border-top: 7px solid var(--a); } .flash.B .face { border-top: 7px solid var(--b); } .flash.C .face { border-top: 7px solid var(--c); }
+.done-box { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 34px 20px; }
+
+/* Preguntas */
+.q-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+.q-text { font-family: var(--display); font-weight: 800; font-size: 20px; line-height: 1.35; margin-top: 12px; }
+.opts { display: grid; gap: 10px; margin-top: 16px; }
+.opt { text-align: left; border: 2px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 14px; padding: 13px 15px; display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+.opt .k { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 14px; color: var(--ink-2); }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt.picked { border-color: var(--accent); }
+.opt.picked .k { background: var(--accent); color: var(--accent-ink); }
+.opt.right { border-color: var(--good); background: var(--good-tint); }
+.opt.right .k { background: var(--good); color: var(--surface); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-tint); }
+.opt.wrong .k { background: var(--bad); color: var(--surface); }
+.opt:disabled { cursor: default; }
+.why { font-size: 14.5px; color: var(--ink-2); margin-top: 4px; grid-column: 2; }
+.verdict { margin-top: 14px; border-radius: 14px; padding: 14px 16px; font-size: 15.5px; }
+.verdict.ok { background: var(--good-tint); color: var(--ink); border-left: 6px solid var(--good); }
+.verdict.no { background: var(--bad-tint); color: var(--ink); border-left: 6px solid var(--bad); }
+.verdict b.ttl { display: block; font-family: var(--display); font-size: 16.5px; margin-bottom: 2px; }
+.verdict.ok b.ttl { color: var(--good); } .verdict.no b.ttl { color: var(--bad); }
+
+/* Desarrollo */
+textarea { width: 100%; min-height: 170px; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--surface); color: var(--ink); font: inherit; resize: vertical; }
+.checklist { display: grid; gap: 8px; margin-top: 10px; }
+.check { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.check input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--good); }
+.model { margin-top: 12px; border-left: 6px solid var(--accent); background: var(--surface-2); border-radius: 12px; padding: 14px 16px; font-size: 15.5px; }
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.step { background: var(--surface-2); border-radius: 12px; padding: 10px; font-size: 13.5px; color: var(--ink-2); }
+.step b { display: block; font-family: var(--display); color: var(--ink); font-size: 14.5px; }
+
+/* Simulacro */
+.setup { display: grid; gap: 18px; }
+.timer { font-family: var(--display); font-weight: 900; font-size: 30px; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.timer.low { color: var(--bad); }
+.exam-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); z-index: 4; box-shadow: var(--shadow); }
+.dots { display: flex; flex-wrap: wrap; gap: 6px; }
+.dot { width: 32px; height: 32px; border-radius: 9px; border: 2px solid var(--line); background: var(--surface); color: var(--ink-2); font-family: var(--display); font-weight: 800; font-size: 13px; font-variant-numeric: tabular-nums; }
+.dot.answered { background: var(--surface-2); color: var(--ink); border-color: var(--muted); }
+.dot.flag { border-color: var(--warn); box-shadow: inset 0 -4px 0 var(--warn); }
+.dot.current { border-color: var(--accent); color: var(--accent); }
+.dot.right { background: var(--good-tint); border-color: var(--good); color: var(--good); }
+.dot.wrong { background: var(--bad-tint); border-color: var(--bad); color: var(--bad); }
+.score { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; }
+.big { font-family: var(--display); font-weight: 900; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.grade { font-family: var(--display); font-weight: 800; font-size: 18px; }
+.bars { display: grid; gap: 12px; }
+.barrow { display: grid; grid-template-columns: 170px 1fr 56px; gap: 10px; align-items: center; font-size: 14.5px; }
+.barrow .track { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.barrow .fill { height: 100%; border-radius: 999px; }
+.barrow .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.note { font-size: 14px; color: var(--muted); }
+.kbd { font-family: var(--display); font-weight: 800; font-size: 12px; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; padding: 1px 6px; color: var(--ink-2); }
+
+@media (max-width: 560px) {
+  .steps { grid-template-columns: 1fr 1fr; }
+  .barrow { grid-template-columns: 1fr 56px; }
+  .barrow .lab { grid-column: 1 / -1; }
+  .score { grid-template-columns: 1fr; }
+  .exam-bar { top: calc(env(safe-area-inset-top, 0px) + 78px); }
+  .card { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash-inner, .progress > div { transition: none; }
+}
+</style>
+
+<main class="wrap">
+  <header class="top">
+    <div class="eyebrow">Gestión Pública Intercultural · UC Temuco</div>
+    <h1>Simulador de prueba</h1>
+    <p>Repasa con tarjetas, practica con preguntas que te explican cada alternativa y mide tu tiempo con un simulacro. Todo sale de las clases 1, 2 y 4 y de las lecturas de Lahera (2004) y Walsh (2009).</p>
+    <div class="ejes">
+      <span class="chip A">Eje A · Políticas públicas</span>
+      <span class="chip B">Eje B · Interculturalidad</span>
+      <span class="chip C">Eje C · Casos de La Araucanía</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="tab-flash" aria-controls="p-flash" aria-selected="true">Tarjetas<small>Memoriza conceptos</small></button>
+    <button class="tab" role="tab" id="tab-quiz" aria-controls="p-quiz" aria-selected="false">Práctica<small>Con explicación</small></button>
+    <button class="tab" role="tab" id="tab-exam" aria-controls="p-exam" aria-selected="false">Simulacro<small>Con cronómetro</small></button>
+  </nav>
+
+  <!-- TARJETAS -->
+  <section class="panel" id="p-flash" role="tabpanel" aria-labelledby="tab-flash">
+    <div class="row spread">
+      <div class="seg" id="flash-filter" aria-label="Filtrar por eje"></div>
+      <button class="btn" id="flash-shuffle">Mezclar</button>
+    </div>
+    <div class="grid" style="display:grid;gap:8px">
+      <div class="row spread stats"><span id="flash-count"></span><span id="flash-known"></span></div>
+      <div class="progress"><div id="flash-bar" style="width:0%"></div></div>
+    </div>
+    <div id="flash-stage"></div>
+    <p class="note">Toca la tarjeta o presiona <span class="kbd">Espacio</span> para darla vuelta. <span class="kbd">→</span> la sé · <span class="kbd">←</span> repasar.</p>
+  </section>
+
+  <!-- PRÁCTICA -->
+  <section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+    <div class="row spread">
+      <div class="seg" id="quiz-filter" aria-label="Filtrar por eje"></div>
+      <div class="seg" id="quiz-mode" aria-label="Tipo de pregunta">
+        <button aria-pressed="true" data-mode="cerrada">Selección y V/F</button>
+        <button aria-pressed="false" data-mode="desarrollo">Desarrollo guiado</button>
+      </div>
+    </div>
+    <div id="quiz-stage"></div>
+  </section>
+
+  <!-- SIMULACRO -->
+  <section class="panel" id="p-exam" role="tabpanel" aria-labelledby="tab-exam" hidden>
+    <div id="exam-stage"></div>
+  </section>
+</main>
+
+<script>
+/* ============ Datos ============ */
+const EJES = { A: "Políticas públicas", B: "Interculturalidad", C: "Casos de La Araucanía" };
+
+const CARDS = [
+  ["A", "Agenda", "Etapa en que un problema capta la atención del gobierno y se reconoce como asunto que requiere intervención del Estado.", "Soto (s.f.-b)"],
+  ["A", "Formulación", "Etapa en que se buscan y comparan alternativas para un problema que ya está en la agenda. Debería primar lo técnico: evidencia, datos, experiencia comparada y mecanismos de legitimidad.", "Soto (s.f.-b)"],
+  ["A", "Toma de decisión", "Se comparan alternativas y se elige una. Deciden los actores políticos, condicionados por los técnicos: una coproducción.", "Soto (s.f.-b)"],
+  ["A", "Implementación", "Etapa en que las decisiones se convierten en acciones concretas. Una buena formulación no garantiza una buena ejecución.", "Soto (s.f.-b)"],
+  ["A", "Polity", "Las reglas del juego: normas e instituciones que organizan el sistema político (Constitución, sistema electoral).", "Howlett et al. (2009), como se citó en Soto (s.f.-b)"],
+  ["A", "Politics", "El juego de poder: procesos en que los actores compiten, negocian y ejercen el poder.", "Howlett et al. (2009), como se citó en Soto (s.f.-b)"],
+  ["A", "Public policy", "Lo que el Estado hace: decisiones y acciones para resolver problemas públicos (planes, programas, proyectos).", "Howlett et al. (2009), como se citó en Soto (s.f.-b)"],
+  ["A", "Política pública (Lahera)", "Cursos de acción y flujos de información relacionados con un objetivo público definido en forma democrática, desarrollados por el sector público y, a menudo, con la comunidad y el sector privado.", "Lahera (2002), como se citó en Soto (s.f.-b)"],
+  ["A", "Ventana de rutina", "Ventana previsible que se abre con procedimientos institucionalizados: elecciones, discusión del presupuesto, evaluación de programas.", "Soto (s.f.-b)"],
+  ["A", "Ventana de expansión", "Una ventana ya abierta permite incorporar otros problemas relacionados. Ejemplo de clase: el estallido social.", "Soto (s.f.-b)"],
+  ["A", "Factibilidad", "Viabilidad técnica y económica (¿se puede implementar?), política (¿hay apoyo?) y jurídica (¿es compatible con la ley?).", "Soto (s.f.-b)"],
+  ["A", "Modelo racional", "Se elige la alternativa óptima, que maximiza beneficios y minimiza costos. Es sistemático pero poco realista: supone capacidades ilimitadas.", "Soto (s.f.-b)"],
+  ["A", "Racionalidad limitada", "Se elige una solución satisfactoria porque faltan tiempo, información y capacidad. Objetivos y medios se ajustan mutuamente.", "Soto (s.f.-b)"],
+  ["A", "Cubo de basura", "Las decisiones surgen del encuentro más o menos azaroso entre problemas, soluciones, participantes y oportunidades de decisión.", "Cohen et al. (1972), como se citó en Lahera (2004, p. 11)"],
+  ["A", "Caja cerrada", "Toma de decisiones poco transparente, que puede responder a intereses ajenos a la evidencia.", "Soto (s.f.-b)"],
+  ["A", "Top-down", "Enfoque de implementación que pregunta si se implementa correctamente lo diseñado y busca reducir la distancia entre lo decidido y lo implementado.", "Soto (s.f.-b)"],
+  ["A", "Bottom-up", "Enfoque de implementación centrado en la adaptación al contexto real, la discrecionalidad y los burócratas de calle.", "Soto (s.f.-b)"],
+  ["A", "Burócratas de calle", "Funcionarios de primera línea cuya discrecionalidad moldea la política que realmente se entrega.", "Lipsky (1980), como se citó en Soto (s.f.-b)"],
+  ["A", "Fugas", "Discrepancias, en cada etapa del ciclo, entre lo que supone el enfoque analítico y lo que pasa en la realidad.", "Lahera (2004, pp. 11-12)"],
+  ["A", "Second best", "La política posible, subóptima frente a una política óptima que puede no existir.", "Lahera (2004, p. 9)"],
+  ["A", "Política de Estado", "Política de más de un gobierno o que involucra al conjunto de los poderes del Estado.", "Lahera (2004, p. 10)"],
+  ["A", "Evaluación interactiva", "Investigación participativa sobre un programa, basada en la interacción entre usuarios, técnicos y directivos.", "Lahera (2004, p. 23)"],
+  ["A", "Niveles de participación", "Compartir información, realizar consultas, participar en las decisiones y/o en la implementación.", "Lahera (2004, p. 18)"],
+  ["A", "Gobernabilidad integrada", "Capacidad de procesar todos los conflictos sociales, no solo los macroeconómicos.", "Lahera (2004, p. 11)"],
+  ["A", "Analista de políticas", "Un \"productor de argumentos\", más parecido a un abogado que a un ingeniero.", "Lahera (2004, p. 22)"],
+  ["B", "Interculturalidad relacional", "Contacto e intercambio entre culturas. Su problema: oculta o minimiza la conflictividad y los contextos de poder.", "Walsh (2009, sección 1)"],
+  ["B", "Interculturalidad funcional", "Reconoce la diversidad para incluirla en la estructura social establecida, sin tocar las causas de la asimetría. Compatible con el modelo neoliberal.", "Tubino (2005), como se citó en Walsh (2009, sección 1)"],
+  ["B", "Interculturalidad crítica", "Proyecto político, social, ético y epistémico que parte del problema estructural-colonial-racial, se construye desde la gente y busca transformar las estructuras. Aún no existe: es algo por construir.", "Walsh (2009, sección 1)"],
+  ["B", "Colonialidad del poder", "Articulación entre la idea de raza, como clasificación y control social, y el capitalismo mundial. Fija una jerarquía racializada.", "Quijano (2000), como se citó en Walsh (2009, sección 3)"],
+  ["B", "Colonialidad del saber", "El eurocentrismo como perspectiva hegemónica de conocimiento.", "Quijano (2000), como se citó en Walsh (2009, sección 3)"],
+  ["B", "Colonialidad del ser", "La deshumanización racial del sujeto colonizado en la modernidad.", "Maldonado-Torres (2007), como se citó en Walsh (2009, sección 3)"],
+  ["B", "Colonialidad cosmológica", "Negación de las relaciones espirituales con la naturaleza y los ancestros, basada en el binario hombre/naturaleza.", "Walsh (2009, sección 3)"],
+  ["B", "Diferencia colonial", "Diferencia construida e impuesta desde la colonia, basada en raza, racismo y racialización.", "Walsh (2009, sección 3)"],
+  ["B", "De-colonial", "Postura continua de transgredir, intervenir, in-surgir e incidir. No pretende simplemente \"deshacer\" lo colonial.", "Walsh (2009, nota 25)"],
+  ["B", "Modos \"otros\"", "Formas de pensar, saber y vivir asentadas en la diferencia colonial. No son \"otros modos\" ni \"modos alternativos\".", "Walsh (2009, nota 22)"],
+  ["B", "Re-formas", "Con guion: los cambios de los 90 que no hicieron más que re-formular (o re-formar) lo mismo.", "Walsh (2009, nota 4)"],
+  ["B", "EIB", "Educación intercultural bilingüe. Nace en los 80 con doble sentido: demanda indígena y burocratización estatal. Es unidireccional: de la lengua indígena a la \"nacional\".", "Walsh (2009, sección 2.1)"],
+  ["B", "Constitucionalismo multicultural", "Fase de los 90 en que las constituciones reconocen el carácter multiétnico y pluricultural de la población.", "Walsh (2009, sección 2.2)"],
+  ["B", "Pedagogía de-colonial", "Praxis educativa que cuestiona la racialización y alienta modos \"otros\" de ser, saber y vivir.", "Walsh (2009, sección 3)"],
+  ["B", "Sumak kawsay", "Buen vivir. Horizonte de la Constitución de Ecuador (Art. 387) que vincula los conocimientos con la vida y no con el bienestar individual.", "Walsh (2009, sección 2.3)"],
+  ["C", "Comisión para la Paz y el Entendimiento", "Instancia de diálogo creada en 2023 para identificar las causas estructurales del conflicto y avanzar hacia acuerdos de largo plazo. Tiene 5 ejes.", "Soto (s.f.-c)"],
+  ["C", "Gobernanza", "Formas cooperativas de dirección, en las cuales el Estado interactúa con actores privados y sociales para producir decisiones y políticas.", "Mayntz (2001), como se citó en Soto (s.f.-c)"],
+  ["C", "Acuerdo de Nueva Imperial", "1989. Desde ahí se impulsa con fuerza la demanda de reconocimiento constitucional.", "Soto (s.f.-c)"],
+  ["C", "Los 5 ejes de la Comisión", "Justicia y reconocimiento · Tierras · Reparación a víctimas · Desarrollo territorial · Institucionalidad.", "Soto (s.f.-c)"],
+  ["C", "CONADI", "Organismo con el mandato de promover, coordinar y ejecutar la acción del Estado para el desarrollo integral de personas y comunidades indígenas. Cerca del 62 % de su presupuesto va a compra de tierras.", "Soto (s.f.-c)"],
+  ["C", "Ley 19.253", "Ley indígena de Chile. Actualmente reconoce a 11 pueblos indígenas.", "Soto (s.f.-c)"],
+];
+
+// Pregunta cerrada: [eje, enunciado, [[opción, explicación], ...], índice correcto]
+const Q = [
+  ["A", "En la distinción de Howlett, Ramesh y Perl, la pregunta \"¿Quién obtiene el poder y cómo influye en las decisiones?\" corresponde a:", [
+    ["Polity", "No. La polity pregunta por las reglas del juego: normas e instituciones."],
+    ["Politics", "Correcto. La politics es la política como actividad: actores que compiten, negocian y ejercen el poder (Howlett et al., 2009, como se citó en Soto, s.f.-b)."],
+    ["Public policy", "No. La policy pregunta qué hace el gobierno frente a un problema público."],
+    ["Gobernanza", "No. La gobernanza (Mayntz) no forma parte de esta tríada; es una forma cooperativa de dirección."]], 1],
+  ["A", "La Ley 19.253 y el eventual reconocimiento constitucional de los pueblos indígenas pertenecen principalmente a:", [
+    ["Polity", "Correcto. Son normas que fijan las reglas del juego del sistema político (Howlett et al., 2009, como se citó en Soto, s.f.-b)."],
+    ["Politics", "No. Se disputan en la politics, pero lo que cambian son las reglas: la polity."],
+    ["Public policy", "No. Una policy sería, por ejemplo, un programa de compra de tierras que se ejecuta bajo esa ley."],
+    ["Factibilidad jurídica", "No. La factibilidad jurídica es un criterio para evaluar alternativas, no un nivel de análisis."]], 0],
+  ["A", "Tras el estallido social, demandas como el reconocimiento constitucional ganaron espacio en una agenda que ya estaba abierta. ¿Qué tipo de ventana de oportunidad es?", [
+    ["De rutina", "No. Las de rutina son previsibles y se abren con procedimientos institucionalizados, como el presupuesto."],
+    ["Discrecional", "No. Las discrecionales dependen de la iniciativa de un actor político específico."],
+    ["Aleatoria", "No. La aleatoria describe una crisis inesperada, no la incorporación de otros problemas a una ventana abierta."],
+    ["De expansión", "Correcto. Una ventana ya abierta permite incorporar otros problemas relacionados; la clase usa el estallido social como ejemplo (Soto, s.f.-b)."]], 3],
+  ["A", "La discusión anual del presupuesto de la nación es un ejemplo de ventana:", [
+    ["De rutina", "Correcto. Es previsible y forma parte de procedimientos institucionalizados (Soto, s.f.-b)."],
+    ["Discrecional", "No. No depende de la decisión de una autoridad en particular: ocurre todos los años."],
+    ["Aleatoria", "No. Las aleatorias son las menos predecibles, como terremotos o pandemias."],
+    ["De expansión", "No. La expansión ocurre cuando una ventana abierta arrastra otros temas."]], 0],
+  ["A", "Para Lahera (2004), las \"políticas públicas sin política\":", [
+    ["Son más demagógicas y menos modernas", "No. Eso describe lo contrario: la política sin políticas públicas."],
+    ["Tienen un problema de diseño y debilitan la gobernabilidad social", "Correcto. Al desconsiderar la política, debilitan la gobernabilidad y \"tienen un problema de diseño\" (Lahera, 2004, p. 8)."],
+    ["Son la forma ideal de gestión técnica", "No. Lahera sostiene que política y políticas públicas deben articularse."],
+    ["Equivalen a las políticas de Estado", "No. Las políticas de Estado son las que duran más de un gobierno (Lahera, 2004, p. 10)."]], 1],
+  ["A", "Según Lahera (2004), la política sin propuestas de políticas públicas:", [
+    ["Tiene un problema de diseño", "No. Eso corresponde a las políticas públicas sin política."],
+    ["Es más demagógica, menos moderna", "Correcto. Se concentra en la distribución del poder entre los agentes políticos y sociales (Lahera, 2004, p. 8)."],
+    ["Moderniza la esfera pública", "No. Lo que moderniza la esfera pública es la articulación de ambas."],
+    ["Es propia de los institutos de políticas públicas", "No. Lahera describe a los institutos como actores que proponen políticas."]], 1],
+  ["A", "¿Cuál afirmación sobre las etapas de las políticas públicas es correcta según Lahera (2004)?", [
+    ["Siempre ocurren de forma causal y consecutiva", "No. Es justo lo que Lahera niega."],
+    ["No necesariamente se dan en etapas causales y consecutivas, sino en momentos de calidad y duración heterogéneas", "Correcto. Es casi textual (Lahera, 2004, p. 11). El ciclo es una herramienta analítica."],
+    ["La evaluación siempre es la etapa más desarrollada en América Latina", "No. Lahera dice que la evaluación es \"una actividad casi inexistente\" en la región (p. 23)."],
+    ["Las políticas se extinguen al terminar su ciclo", "No. Lahera dice que rara vez se extinguen; es más habitual que cambien o se combinen (p. 11)."]], 1],
+  ["A", "Un municipio tiene presupuesto, capacidad técnica y el apoyo del concejo para un proyecto, pero el proyecto contraviene la protección de tierras indígenas de la Ley 19.253. ¿Qué factibilidad no cumple?", [
+    ["Técnica", "No. Tiene capacidad técnica."],
+    ["Económica", "No. Tiene presupuesto."],
+    ["Política", "No. Cuenta con el apoyo del concejo."],
+    ["Jurídica", "Correcto. No es compatible con el marco legal vigente (Soto, s.f.-b)."]], 3],
+  ["A", "¿Qué caracteriza al modelo de racionalidad limitada?", [
+    ["Se busca la solución óptima con información completa", "No. Eso describe al modelo racional."],
+    ["Se elige una solución satisfactoria, y objetivos y medios se ajustan mutuamente", "Correcto. Faltan capacidad, tiempo e información para encontrar la óptima (Soto, s.f.-b)."],
+    ["Las decisiones surgen del encuentro azaroso de problemas y soluciones", "No. Eso es el cubo de basura."],
+    ["Las decisiones las toma solo el equipo técnico", "No. Ningún modelo de clase plantea eso."]], 1],
+  ["A", "\"Soluciones buscando temas para los que puedan ser la respuesta, y tomadores de decisiones buscando trabajo.\" Esta frase describe el modelo:", [
+    ["Racional", "No. El racional ordena objetivos, alternativas y costos de manera secuencial."],
+    ["De racionalidad limitada", "No. Ahí hay una búsqueda acotada, pero con objetivos."],
+    ["Del cubo de basura", "Correcto. Lahera lo cita así (Cohen et al., 1972, como se citó en Lahera, 2004, p. 11)."],
+    ["Top-down", "No. Top-down es un enfoque de implementación, no un modelo de decisión."]], 2],
+  ["A", "Una investigadora estudia cómo los facilitadores interculturales de un hospital adaptan los protocolos según la comunidad que atienden. Su enfoque es:", [
+    ["Top-down", "No. El top-down mide la desviación respecto de lo decidido por la autoridad."],
+    ["Bottom-up", "Correcto. Se centra en la discrecionalidad y el contexto local de los implementadores (Soto, s.f.-b; Lipsky, 1980, como se citó en Soto, s.f.-b)."],
+    ["Modelo racional", "No. Es un modelo de toma de decisión, no de implementación."],
+    ["Cubo de basura", "No. Es un modelo de toma de decisión."]], 1],
+  ["A", "¿Cuáles son elementos del enfoque top-down?", [
+    ["Discrecionalidad, adaptación y contexto local", "No. Esos son elementos del bottom-up."],
+    ["Objetivos, estándares, recursos, dirección política y comunicación jerárquica", "Correcto (Soto, s.f.-b)."],
+    ["Problemas, soluciones, participantes y oportunidades", "No. Son las corrientes del cubo de basura."],
+    ["Agenda, formulación y evaluación", "No. Son etapas del ciclo."]], 1],
+  ["A", "¿Qué es el fenómeno de \"caja cerrada\" en la toma de decisiones?", [
+    ["Una decisión tomada por consenso de todos los actores", "No."],
+    ["Una toma de decisiones poco transparente, que puede responder a intereses ajenos a la evidencia", "Correcto (Soto, s.f.-b)."],
+    ["El cierre de una ventana de oportunidad", "No. Es un concepto distinto."],
+    ["Una política que se extingue por diseño", "No. Lahera llama a eso fade-out."]], 1],
+  ["A", "Para Lahera (2004), una política se acepta, rediseña o extingue cuando coinciden:", [
+    ["Presupuesto, ley y funcionarios", "No."],
+    ["La preocupación social, la existencia de una solución técnica y el apoyo político", "Correcto. Es textual (Lahera, 2004, p. 11)."],
+    ["Una elección, una crisis y un ministro", "No. Eso mezcla tipos de ventanas."],
+    ["El diagnóstico, la evaluación y la rendición de cuentas", "No."]], 1],
+  ["A", "¿Cuál de estas opciones NO es un nivel de participación según Lahera (2004)?", [
+    ["Compartir información", "Sí es un nivel (Lahera, 2004, p. 18)."],
+    ["Realizar consultas", "Sí es un nivel."],
+    ["Participar en las decisiones o en la implementación", "Sí es un nivel."],
+    ["Tener derecho a veto automático sobre el presupuesto", "Correcto: no es un nivel que Lahera mencione. Los niveles son información, consulta, decisión e implementación (p. 18)."]], 3],
+  ["A", "¿Qué significa que las políticas públicas sean un \"second best\"?", [
+    ["Que son la segunda prioridad del gobierno", "No."],
+    ["Que son la opción posible frente a una política óptima que puede no existir", "Correcto (Lahera, 2004, p. 9)."],
+    ["Que se evalúan dos veces", "No."],
+    ["Que las diseña el segundo nivel jerárquico", "No."]], 1],
+  ["A", "¿Qué definición incorpora a la comunidad y al sector privado, y exige un objetivo definido democráticamente?", [
+    ["La de Tamayo (1997)", "No. Tamayo se centra en lo que hace un gobierno frente a problemas prioritarios."],
+    ["La de Lahera", "Correcto. \"Cursos de acción y flujos de información relacionados con un objetivo público definido en forma democrática\" (Lahera, 2002, como se citó en Soto, s.f.-b)."],
+    ["La de Mayntz", "No. Mayntz define gobernanza, no política pública."],
+    ["La de Howlett et al.", "No. De ellos viene la distinción polity/politics/policy y el ciclo."]], 1],
+  ["A", "Verdadero o falso: \"En el modelo de racionalidad limitada, quien decide busca la solución óptima, pero ajusta los medios a los objetivos.\"", [
+    ["Verdadero", "No. La trampa está en \"óptima\": la racionalidad limitada elige una solución satisfactoria (Soto, s.f.-b)."],
+    ["Falso", "Correcto. Se busca una solución satisfactoria. La segunda parte (objetivos y medios se ajustan) sí es correcta, y por eso es una trampa (Soto, s.f.-b)."]], 1],
+  ["A", "Verdadero o falso: \"Según Lahera, en América Latina la evaluación de políticas es una actividad consolidada que llega con fuerza a la opinión pública.\"", [
+    ["Verdadero", "No. Lahera dice lo contrario."],
+    ["Falso", "Correcto. Es \"una actividad casi inexistente en América Latina y que llega poco a la opinión pública\" (Lahera, 2004, p. 23)."]], 1],
+
+  ["B", "Un ministerio reedita los textos escolares con imágenes de personas mapuche y afrodescendientes y declara la interculturalidad \"eje transversal\", sin modificar el currículo ni la formación docente. Según Walsh (2009), es interculturalidad:", [
+    ["Relacional", "No. La relacional se refiere al contacto entre personas y culturas."],
+    ["Funcional", "Correcto. Reconoce la diversidad sin transformar las estructuras, como en las re-formas de los 90 (Walsh, 2009, sección 2.2)."],
+    ["Crítica", "No. La crítica exige transformar estructuras y construirse desde abajo."],
+    ["De-colonial", "No. Lo de-colonial apunta a enfrentar la matriz colonial, no a agregar imágenes."]], 1],
+  ["B", "¿Cuál es el principal problema de la perspectiva relacional según Walsh?", [
+    ["Que es incompatible con el neoliberalismo", "No. Esa crítica no aplica a la relacional."],
+    ["Que oculta o minimiza la conflictividad y los contextos de poder", "Correcto. Es textual (Walsh, 2009, sección 1)."],
+    ["Que solo existe en Ecuador y Bolivia", "No."],
+    ["Que exige transformar las estructuras", "No. Eso es propio de la crítica."]], 1],
+  ["B", "Según Walsh (2009), la interculturalidad crítica:", [
+    ["Ya está institucionalizada en las constituciones de Bolivia y Ecuador", "No. Walsh valora esos procesos pero advierte sus \"problemas y contradicciones\"."],
+    ["Se ejerce desde arriba para incluir a los grupos excluidos", "No. Eso describe la funcional."],
+    ["Aún no existe: es algo por construir, desde la gente", "Correcto (Walsh, 2009, sección 1)."],
+    ["Se limita a promover la tolerancia", "No. Eso es la funcional."]], 2],
+  ["B", "¿Por qué la interculturalidad funcional es \"perfectamente compatible con la lógica del modelo neo-liberal existente\"?", [
+    ["Porque exige transformar las estructuras del mercado", "No. Es al revés."],
+    ["Porque no toca las causas de la asimetría ni cuestiona las reglas del juego", "Correcto (Tubino, 2005, como se citó en Walsh, 2009, sección 1)."],
+    ["Porque rechaza el reconocimiento de la diversidad", "No. Sí la reconoce; el punto es cómo."],
+    ["Porque solo existe en el sector privado", "No."]], 1],
+  ["B", "Walsh critica la EIB porque su interculturalidad es:", [
+    ["Bidireccional y universal", "No. Es justo lo que le falta."],
+    ["Unidireccional: desde la lengua indígena hacia la lengua \"nacional\", con sentido de transición", "Correcto (Walsh, 2009, sección 2.1)."],
+    ["Exclusiva de la educación superior", "No."],
+    ["Contraria al Convenio 169", "No. El Convenio 169 respaldó su oficialización."]], 1],
+  ["B", "¿Qué quiere decir Walsh cuando llama a la oficialización de la EIB \"un cuchillo de doble filo\"?", [
+    ["Que fue un fracaso total", "No. Walsh reconoce que hubo un logro."],
+    ["Que trajo un reconocimiento merecido pero debilitó lo propio e instaló mecanismos de regulación", "Correcto (Walsh, 2009, sección 2.1)."],
+    ["Que tuvo dos ministros a cargo", "No."],
+    ["Que se aplicó en dos idiomas", "No. Es una metáfora sobre sus efectos."]], 1],
+  ["B", "¿Por qué Walsh escribe \"re-formas\" con guion?", [
+    ["Por un error de edición", "No."],
+    ["Para enfatizar que los cambios de los 90 no hicieron más que re-formular lo mismo", "Correcto (Walsh, 2009, nota 4)."],
+    ["Porque es la forma correcta en portugués", "No."],
+    ["Para referirse a reformas agrarias", "No."]], 1],
+  ["B", "La colonialidad del saber se refiere a:", [
+    ["La jerarquía racializada ligada al capitalismo", "No. Eso es la colonialidad del poder."],
+    ["El eurocentrismo como perspectiva hegemónica de conocimiento", "Correcto (Quijano, 2000, como se citó en Walsh, 2009, sección 3)."],
+    ["La deshumanización racial", "No. Eso es la colonialidad del ser."],
+    ["La negación de la relación espiritual con la naturaleza", "No. Eso es la colonialidad cosmológica."]], 1],
+  ["B", "¿Qué autor trabaja la \"colonialidad del ser\" en la lectura de Walsh?", [
+    ["Quijano", "No. Quijano trabaja la colonialidad del poder y del saber."],
+    ["Maldonado-Torres", "Correcto. Habla de la deshumanización racial en la modernidad (Maldonado-Torres, 2007, como se citó en Walsh, 2009, sección 3)."],
+    ["Tubino", "No. Tubino aporta la noción de interculturalidad funcional."],
+    ["Lahera", "No. Lahera escribe sobre políticas públicas."]], 1],
+  ["B", "¿Qué dimensión de la colonialidad se fija en la distinción binaria hombre/naturaleza?", [
+    ["Del poder", "No."],
+    ["Del saber", "No."],
+    ["Del ser", "No."],
+    ["Cosmológica o de la madre naturaleza", "Correcto (Walsh, 2009, sección 3)."]], 3],
+  ["B", "¿Por qué Walsh escribe \"de-colonial\" sin la \"s\"?", [
+    ["Porque es un anglicismo aceptado", "No. Walsh aclara que no es un anglicismo."],
+    ["Para marcar una postura continua de transgredir, intervenir, in-surgir e incidir, no simplemente \"deshacer\" lo colonial", "Correcto (Walsh, 2009, nota 25)."],
+    ["Porque así se escribe en la Constitución de Bolivia", "No."],
+    ["Porque se refiere solo a la época colonial", "No. Se refiere a patrones que siguen vigentes."]], 1],
+  ["B", "Walsh describe las políticas de \"desarrollo humano integral\" y cohesión social del siglo XXI como:", [
+    ["Interculturalidad crítica en marcha", "No."],
+    ["Un interculturalismo funcional ya madurado", "Correcto (Walsh, 2009, sección 2.3)."],
+    ["Una forma de interculturalidad relacional", "No."],
+    ["Pedagogía de-colonial", "No."]], 1],
+  ["B", "La Constitución de Bolivia de 2009 define su sistema educativo como:", [
+    ["Bilingüe y bicultural", "No. Esa denominación se abandonó en 1982."],
+    ["Intracultural, intercultural y plurilingüe", "Correcto (Walsh, 2009, sección 2.3)."],
+    ["Multicultural y transversal", "No."],
+    ["Etnoeducativo", "No. La etnoeducación es la normativa colombiana."]], 1],
+  ["B", "Según Walsh, ¿a quién interpela la interculturalidad crítica?", [
+    ["Solo a los pueblos indígenas", "No. Es un error típico."],
+    ["Solo a los pueblos indígenas y afrodescendientes", "No."],
+    ["A todos los sectores de la sociedad, incluidos los blanco-mestizos occidentalizados", "Correcto (Walsh, 2009, sección 1)."],
+    ["Solo al Estado", "No."]], 2],
+  ["B", "Verdadero o falso: \"Para Walsh, la interculturalidad crítica ya está institucionalizada en las nuevas constituciones de Bolivia y Ecuador.\"", [
+    ["Verdadero", "No. Walsh pide no idealizar esos procesos."],
+    ["Falso", "Correcto. \"Aún no existe, es algo por construir\"; Bolivia y Ecuador ofrecen posibilidades, con \"problemas y contradicciones\" (Walsh, 2009, secciones 1 y 2.3)."]], 1],
+
+  ["C", "¿En qué año se creó la Comisión para la Paz y el Entendimiento?", [
+    ["1989", "No. 1989 es el Acuerdo de Nueva Imperial."],
+    ["1997", "No. 1997 es el punto de inflexión del conflicto territorial."],
+    ["2019", "No."],
+    ["2023", "Correcto (Soto, s.f.-c)."]], 3],
+  ["C", "¿Por qué la Comisión es un ejemplo de gobernanza?", [
+    ["Porque decide solo el Ejecutivo", "No. Es lo contrario de la gobernanza."],
+    ["Porque el Estado interactúa con actores privados y sociales para producir decisiones: su mapa tiene 430 representantes", "Correcto (Mayntz, 2001, como se citó en Soto, s.f.-c)."],
+    ["Porque la dirigen organismos internacionales", "No. Participan, pero no la dirigen."],
+    ["Porque evalúa políticas ya implementadas", "No."]], 1],
+  ["C", "¿Desde qué hito se impulsa con fuerza la demanda de reconocimiento constitucional?", [
+    ["El Acuerdo de Nueva Imperial (1989)", "Correcto (Soto, s.f.-c)."],
+    ["La Ley 19.253 (1993)", "No. La clase no la presenta como el hito del reconocimiento constitucional."],
+    ["El estallido social", "No."],
+    ["La creación de la Comisión (2023)", "No."]], 0],
+  ["C", "¿Qué porcentaje aproximado del presupuesto de CONADI se destina a la compra de tierras?", [
+    ["17 %", "No."],
+    ["28 %", "No. 28,6 % es la pobreza en La Araucanía."],
+    ["62 %", "Correcto (Soto, s.f.-c)."],
+    ["90 %", "No."]], 2],
+  ["C", "Según la clase 4, ¿cuánto se redujo el territorio mapuche tras la \"Pacificación de la Araucanía\"?", [
+    ["De 10 millones a 500 mil hectáreas", "Correcto (Soto, s.f.-c)."],
+    ["De 5 millones a 1 millón de hectáreas", "No."],
+    ["De 1 millón a 100 mil hectáreas", "No."],
+    ["Del río Biobío al río Aconcagua", "No. Es al revés: antes de la colonia llegaba al Aconcagua; después, al Biobío."]], 0],
+  ["C", "¿Qué dato de pobreza (2024) presentó la clase para La Araucanía?", [
+    ["9,9 %", "No. Es Magallanes, la más baja."],
+    ["17,3 %", "No. Es el promedio nacional."],
+    ["24,3 %", "No. Es el Maule."],
+    ["28,6 %, la más alta del país", "Correcto (Soto, s.f.-c)."]], 3],
+  ["C", "¿Cuántos pueblos indígenas reconoce actualmente la Ley 19.253, según la clase?", [
+    ["9", "No."],
+    ["10", "No."],
+    ["11", "Correcto (Soto, s.f.-c)."],
+    ["12", "No."]], 2],
+  ["C", "¿Qué año se considera un punto de inflexión, en que los conflictos territoriales aumentaron y se intensificaron?", [
+    ["1989", "No. Es el Acuerdo de Nueva Imperial."],
+    ["1993", "No."],
+    ["1997", "Correcto (Soto, s.f.-c)."],
+    ["2023", "No. Es la creación de la Comisión."]], 2],
+  ["C", "El eje de institucionalidad de la Comisión diagnostica principalmente:", [
+    ["Falta de recursos para comprar tierras", "No. Eso corresponde al eje de tierras."],
+    ["Acción dispersa: CONADI debe coordinar con varios ministerios", "Correcto (Soto, s.f.-c)."],
+    ["Ausencia de leyes indígenas", "No. Existe la Ley 19.253."],
+    ["Exceso de participación ciudadana", "No."]], 1],
+  ["C", "En el ciclo de políticas públicas, el trabajo de la Comisión (analizar causas y proponer acuerdos) corresponde sobre todo a:", [
+    ["Implementación", "No. La Comisión no ejecuta."],
+    ["Formulación", "Correcto. Desarrolla y analiza alternativas para un problema que ya está en la agenda (Soto, s.f.-b)."],
+    ["Evaluación", "No. No evalúa políticas ya ejecutadas."],
+    ["Toma de decisión", "No. Propone, pero no decide."]], 1],
+];
+
+// Desarrollo guiado
+const DEV = [
+  { eje: "B", q: "Gestión pública intercultural: ¿declaración o práctica efectiva? Elige el Hospital Intercultural de Nueva Imperial o Padre Las Casas y analízalo con la distinción de Walsh (2009).", t: 12,
+    pauta: ["Defino la interculturalidad funcional con su rasgo distintivo (reconoce sin tocar las estructuras; desde arriba) y la cito.", "Defino la interculturalidad crítica (transforma estructuras; desde abajo; aún por construir) y la cito.", "Propongo al menos dos criterios observables (quién diseña, qué estructura cambia, a quién interpela, si reconoce otros saberes).", "Aplico los criterios al caso y planteo mi juicio como hipótesis, diciendo qué evidencia la confirmaría.", "Cierro con una postura clara y una limitación."],
+    modelo: "Walsh distingue la interculturalidad funcional, que reconoce la diversidad para incluirla en lo existente sin tocar las causas de la asimetría, de la crítica, que se construye desde la gente para transformar las estructuras (Walsh, 2009, sección 1). Para evaluar el caso usaría cuatro criterios: quién lo diseñó, si cambia la estructura de la institución, a quién interpela y si reconoce otros saberes como conocimiento. El material del curso muestra su reconocimiento externo (Soto, s.f.-a), pero no cómo funciona por dentro. Mi hipótesis debe quedar abierta: sería práctica efectiva si las comunidades participan en su gestión y si los saberes mapuche se integran como conocimiento válido; sería declaración si solo agrega elementos simbólicos." },
+  { eje: "C", q: "La Comisión para la Paz y el Entendimiento: a) ubica su trabajo en el ciclo de políticas públicas; b) explica por qué es un ejemplo de gobernanza; c) elige un eje y anticipa un problema de implementación.", t: 12,
+    pauta: ["Distingo la creación de la Comisión (agenda) de su trabajo (formulación) y lo justifico.", "Matizo con Lahera: las etapas no son estrictamente consecutivas.", "Defino gobernanza según Mayntz y uso la evidencia de los 430 representantes.", "Elijo un eje y un enfoque (top-down o bottom-up) con sus elementos.", "Anticipo un riesgo concreto de implementación con cita."],
+    modelo: "Su creación es un hito de agenda y su trabajo corresponde a la formulación, porque analiza causas y propone alternativas (Soto, s.f.-b); aun así, las etapas no son estrictamente consecutivas (Lahera, 2004, p. 11). Es gobernanza porque el Estado dirige en cooperación con actores privados y sociales (Mayntz, 2001, como se citó en Soto, s.f.-c), con 430 representantes de seis sectores. En el eje institucionalidad, desde el top-down, la acción dispersa entre CONADI y varios ministerios (Soto, s.f.-c) arriesga que, sin dirección política ni comunicación jerárquica, lo acordado se aleje de lo ejecutado." },
+  { eje: "A", q: "La compra de tierras de CONADI absorbe cerca del 62 % de su presupuesto y muestra compras muy irregulares entre 1993 y 2024. Clasifícala (polity/politics/policy), plantea dos hipótesis sobre la irregularidad y propone tres indicadores de evaluación.", t: 12,
+    pauta: ["La clasifico como policy y la vinculo con polity (Ley 19.253) y politics (disputa presupuestaria).", "Planteo dos hipótesis en condicional, cada una con un modelo de decisión o tipo de ventana.", "Propongo tres indicadores medibles y los tipifico (costo unitario, eficacia, etc.).", "Fundamento los indicadores en Lahera (Recuadro 1 o fugas de evaluación).", "Cierro con un juicio que conecte evaluación y reparación."],
+    modelo: "Es policy: una acción concreta del Estado frente a la pérdida territorial (Howlett et al., 2009, como se citó en Soto, s.f.-b). Hipótesis 1: los máximos podrían coincidir con ventanas de rutina (presupuesto) o discrecionales (prioridades de gobierno). Hipótesis 2: sin un plan de largo plazo, las compras podrían responder a la racionalidad limitada o al cubo de basura (Cohen et al., 1972, como se citó en Lahera, 2004, p. 11). Indicadores: costo por hectárea, porcentaje de demandas priorizadas resueltas y uso de las tierras a cinco años medido con las comunidades (Lahera, 2004, p. 9). Sin evaluación, se confirma que es \"una actividad casi inexistente\" (Lahera, 2004, p. 23)." },
+  { eje: "B", q: "¿Por qué Walsh califica la oficialización de la EIB como \"un cuchillo de doble filo\"? Explica y relaciona con la interculturalidad funcional.", t: 6,
+    pauta: ["Explico el lado positivo: el reconocimiento merecido y su respaldo en el Convenio 169.", "Explico el lado negativo: se debilita lo propio y se instalan mecanismos de regulación estatal.", "Menciono su carácter unidireccional (lengua indígena → lengua nacional).", "Lo relaciono con la interculturalidad funcional.", "Cito a Walsh con sección."],
+    modelo: "Al legalizarse como derecho étnico y como programa para indígenas, respaldada por el Convenio 169, la EIB obtuvo un reconocimiento merecido; pero entró al aparato de control estatal, debilitando su sentido comunitario y ancestral e instalando mecanismos de regulación (Walsh, 2009, sección 2.1). Además, su interculturalidad es unidireccional, de la lengua indígena a la \"nacional\". Esto la acerca a la interculturalidad funcional: incluye sin transformar la estructura educativa (Walsh, 2009, sección 1)." },
+];
+
+/* ============ Utilidades ============ */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const shuffle = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("gpi-" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("gpi-" + k, JSON.stringify(v)); } catch {} },
+};
+const LET = ["A", "B", "C", "D"];
+function segment(el, options, value, onChange) {
+  el.innerHTML = options.map(([v, l]) => `<button aria-pressed="${v === value}" data-v="${v}">${esc(l)}</button>`).join("");
+  el.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; [...el.children].forEach((c) => c.setAttribute("aria-pressed", c === b)); onChange(b.dataset.v); };
+}
+const EJE_OPTS = [["all", "Todos"], ["A", "Eje A"], ["B", "Eje B"], ["C", "Eje C"]];
+
+/* ============ Pestañas ============ */
+const tabs = [...document.querySelectorAll(".tab")];
+function openTab(id) {
+  tabs.forEach((t) => { const on = t.id === id; t.setAttribute("aria-selected", on); document.getElementById(t.getAttribute("aria-controls")).hidden = !on; });
+  store.set("tab", id);
+}
+tabs.forEach((t) => t.addEventListener("click", () => openTab(t.id)));
+openTab(store.get("tab", "tab-flash"));
+
+/* ============ Tarjetas ============ */
+const known = new Set(store.get("known", []));
+let fFilter = "all", fDeck = [], fPos = 0;
+function buildDeck(mix) {
+  const base = CARDS.map((c, i) => ({ i, eje: c[0], term: c[1], def: c[2], src: c[3] })).filter((c) => fFilter === "all" || c.eje === fFilter);
+  const pending = base.filter((c) => !known.has(c.term));
+  fDeck = mix ? shuffle(pending) : pending;
+  fPos = 0;
+  renderFlash();
+}
+function renderFlash() {
+  const total = CARDS.filter((c) => fFilter === "all" || c[0] === fFilter);
+  const k = total.filter((c) => known.has(c[1])).length;
+  $("#flash-count").textContent = `${total.length} conceptos`;
+  $("#flash-known").textContent = `Ya los sabes: ${k} de ${total.length}`;
+  $("#flash-bar").style.width = (total.length ? (k / total.length) * 100 : 0) + "%";
+  const stage = $("#flash-stage");
+  if (!fDeck.length || fPos >= fDeck.length) {
+    stage.innerHTML = `<div class="card done-box"><h2>${k === total.length ? "¡Te sabes todo este mazo!" : "Terminaste esta vuelta"}</h2>
+      <p class="stats">${k === total.length ? "Puedes reiniciar para repasar desde cero." : `Te quedan ${total.length - k} conceptos por dominar.`}</p>
+      <div class="row" style="justify-content:center">${k < total.length ? `<button class="btn primary" id="f-again">Seguir repasando</button>` : ""}<button class="btn" id="f-reset">Reiniciar mazo</button></div></div>`;
+    $("#f-again")?.addEventListener("click", () => buildDeck(true));
+    $("#f-reset").addEventListener("click", () => { total.forEach((c) => known.delete(c[1])); store.set("known", [...known]); buildDeck(true); });
+    return;
+  }
+  const c = fDeck[fPos];
+  stage.innerHTML = `<div class="flash ${c.eje}" id="flash" tabindex="0" role="button" aria-label="Tarjeta: ${esc(c.term)}. Presiona para ver la definición">
+    <div class="flash-inner">
+      <div class="face front"><span class="chip ${c.eje} tagline">${EJES[c.eje]}</span><div class="term">${esc(c.term)}</div><div class="hint">Piensa la definición y luego da vuelta la tarjeta</div></div>
+      <div class="face back"><span class="chip ${c.eje} tagline">${esc(c.term)}</span><div class="def">${esc(c.def)}</div><div class="src">${esc(c.src)}</div></div>
+    </div></div>
+    <div class="row spread" style="margin-top:14px">
+      <span class="stats">Tarjeta ${fPos + 1} de ${fDeck.length}</span>
+      <div class="row"><button class="btn bad" id="f-no">Repasar</button><button class="btn good" id="f-yes">La sé</button></div>
+    </div>`;
+  const card = $("#flash");
+  card.addEventListener("click", () => card.classList.toggle("flipped"));
+  $("#f-yes").addEventListener("click", () => answerFlash(true));
+  $("#f-no").addEventListener("click", () => answerFlash(false));
+}
+function answerFlash(ok) {
+  const c = fDeck[fPos];
+  if (ok) { known.add(c.term); store.set("known", [...known]); fPos++; }
+  else { fDeck.push(fDeck.splice(fPos, 1)[0]); if (fDeck.length === 1) fPos = 0; }
+  renderFlash();
+}
+document.addEventListener("keydown", (e) => {
+  if ($("#p-flash").hidden || e.target.matches("textarea, input")) return;
+  if (e.key === " " && $("#flash")) { e.preventDefault(); $("#flash").classList.toggle("flipped"); }
+  if (e.key === "ArrowRight" && $("#f-yes")) answerFlash(true);
+  if (e.key === "ArrowLeft" && $("#f-no")) answerFlash(false);
+});
+segment($("#flash-filter"), EJE_OPTS, "all", (v) => { fFilter = v; buildDeck(true); });
+$("#flash-shuffle").addEventListener("click", () => buildDeck(true));
+buildDeck(true);
+
+/* ============ Pregunta (render común) ============ */
+function questionHTML(q, num, total, state) {
+  const [eje, text, opts, right] = q;
+  const answered = state.picked != null && state.reveal;
+  return `<div class="q-head"><span class="chip ${eje}">${EJES[eje]}</span><span class="stats">Pregunta ${num} de ${total}</span></div>
+    <div class="q-text">${esc(text)}</div>
+    <div class="opts">${opts.map(([o, why], i) => {
+      let cls = "";
+      if (answered) cls = i === right ? "right" : i === state.picked ? "wrong" : "";
+      else if (state.picked === i) cls = "picked";
+      const showWhy = answered && (i === right || i === state.picked);
+      return `<button class="opt ${cls}" data-i="${i}" ${answered ? "disabled" : ""}><span class="k">${opts.length === 2 ? (i ? "F" : "V") : LET[i]}</span><span>${esc(o)}</span>${showWhy ? `<span class="why">${esc(why)}</span>` : ""}</button>`;
+    }).join("")}</div>
+    ${answered ? `<div class="verdict ${state.picked === right ? "ok" : "no"}"><b class="ttl">${state.picked === right ? "✓ Correcto" : "✗ Incorrecto"}</b>${state.picked === right ? "" : `La respuesta correcta es <b>${esc(opts[right][0])}</b>. `}${esc(opts[right][1].replace(/^Correcto[.:]?\s*(?:\(|:)?/, (m) => (m.endsWith("(") ? "(" : "")))}</div>` : ""}`;
+}
+
+/* ============ Práctica ============ */
+let qFilter = "all", qMode = "cerrada", qList = [], qPos = 0, qState = {}, qScore = { ok: 0, n: 0 };
+function buildQuiz() {
+  qList = shuffle(Q.filter((q) => qFilter === "all" || q[0] === qFilter));
+  qPos = 0; qState = {}; qScore = { ok: 0, n: 0 };
+  renderQuiz();
+}
+function renderQuiz() {
+  const stage = $("#quiz-stage");
+  if (qMode === "desarrollo") return renderDev(stage);
+  if (qPos >= qList.length) {
+    stage.innerHTML = `<div class="card done-box"><h2>Terminaste la práctica</h2><p class="big">${qScore.ok}/${qScore.n}</p><p class="stats">Respuestas correctas</p><button class="btn primary" id="q-again">Practicar otra vez</button></div>`;
+    $("#q-again").addEventListener("click", buildQuiz);
+    return;
+  }
+  const q = qList[qPos];
+  stage.innerHTML = `<div class="card">${questionHTML(q, qPos + 1, qList.length, qState)}
+    <div class="row spread" style="margin-top:16px"><span class="stats">Aciertos: ${qScore.ok} de ${qScore.n}</span>
+    <button class="btn primary" id="q-next" ${qState.reveal ? "" : "hidden"}>${qPos + 1 < qList.length ? "Siguiente pregunta" : "Ver resultado"}</button></div></div>`;
+  stage.querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => {
+    qState = { picked: +b.dataset.i, reveal: true };
+    qScore.n++; if (qState.picked === q[3]) qScore.ok++;
+    renderQuiz();
+    $("#q-next").focus();
+  }));
+  $("#q-next").addEventListener("click", () => { qPos++; qState = {}; renderQuiz(); });
+}
+let dPos = 0;
+function renderDev(stage) {
+  const list = DEV.filter((d) => qFilter === "all" || d.eje === qFilter);
+  if (!list.length) { stage.innerHTML = `<div class="card"><p>No hay preguntas de desarrollo para este eje. Elige "Todos".</p></div>`; return; }
+  dPos = Math.min(dPos, list.length - 1);
+  const d = list[dPos];
+  const draft = store.get("draft-" + DEV.indexOf(d), "");
+  stage.innerHTML = `<div class="card">
+    <div class="q-head"><span class="chip ${d.eje}">${EJES[d.eje]}</span><span class="stats">Desarrollo ${dPos + 1} de ${list.length} · ${d.t} puntos sugeridos</span></div>
+    <div class="q-text">${esc(d.q)}</div>
+    <div class="steps">
+      <div class="step"><b>1. Identifica</b>Qué concepto te piden</div>
+      <div class="step"><b>2. Define</b>Con autor y cita</div>
+      <div class="step"><b>3. Aplica</b>Con datos del caso</div>
+      <div class="step"><b>4. Concluye</b>Postura y una limitación</div>
+    </div>
+    <label class="label" for="dev-text" style="display:block;margin-top:16px;margin-bottom:6px">Tu respuesta</label>
+    <textarea id="dev-text" placeholder="Escribe aquí como lo harías en la prueba...">${esc(draft)}</textarea>
+    <div class="row spread" style="margin-top:12px">
+      <span class="stats" id="dev-words"></span>
+      <button class="btn primary" id="dev-show">Corregir con la pauta</button>
+    </div>
+    <div id="dev-review" hidden>
+      <div class="label" style="margin-top:16px">Marca lo que sí incluiste</div>
+      <div class="checklist">${d.pauta.map((p, i) => `<label class="check"><input type="checkbox" id="pauta-${i}"><span>${esc(p)}</span></label>`).join("")}</div>
+      <div class="verdict ok" id="dev-score" style="margin-top:12px"></div>
+      <div class="label" style="margin-top:16px">Respuesta modelo</div>
+      <div class="model">${esc(d.modelo)}</div>
+    </div>
+    <div class="row spread" style="margin-top:16px">
+      <button class="btn" id="dev-prev" ${dPos === 0 ? "disabled" : ""}>Anterior</button>
+      <button class="btn" id="dev-next" ${dPos === list.length - 1 ? "disabled" : ""}>Siguiente</button>
+    </div></div>`;
+  const ta = $("#dev-text");
+  const words = () => { const n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0; $("#dev-words").textContent = `${n} palabras`; };
+  words();
+  ta.addEventListener("input", () => { words(); store.set("draft-" + DEV.indexOf(d), ta.value); });
+  const score = () => {
+    const n = [...stage.querySelectorAll(".check input")].filter((c) => c.checked).length;
+    const pts = Math.round((n / d.pauta.length) * d.t * 10) / 10;
+    const lvl = n === d.pauta.length ? "Logrado" : n >= Math.ceil(d.pauta.length * 0.6) ? "Parcial" : "Inicial";
+    $("#dev-score").className = "verdict " + (lvl === "Inicial" ? "no" : "ok");
+    $("#dev-score").innerHTML = `<b class="ttl">${lvl}: ${n} de ${d.pauta.length} criterios</b>Puntaje estimado: ${String(pts).replace(".", ",")} de ${d.t} puntos.`;
+  };
+  $("#dev-show").addEventListener("click", () => { $("#dev-review").hidden = false; score(); });
+  stage.querySelectorAll(".check input").forEach((c) => c.addEventListener("change", score));
+  $("#dev-prev").addEventListener("click", () => { dPos--; renderQuiz(); });
+  $("#dev-next").addEventListener("click", () => { dPos++; renderQuiz(); });
+}
+segment($("#quiz-filter"), EJE_OPTS, "all", (v) => { qFilter = v; dPos = 0; buildQuiz(); });
+$("#quiz-mode").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...$("#quiz-mode").children].forEach((c) => c.setAttribute("aria-pressed", c === b));
+  qMode = b.dataset.mode; renderQuiz();
+});
+buildQuiz();
+
+/* ============ Simulacro ============ */
+const PRESETS = [["corta", "Rápido", 10, 12], ["media", "Estándar", 20, 25], ["larga", "Completo", 35, 45]];
+let exam = null, tick = null;
+function renderSetup() {
+  clearInterval(tick);
+  const best = store.get("best", null);
+  $("#exam-stage").innerHTML = `<div class="card setup">
+    <div><h2>Arma tu simulacro</h2><p class="stats" style="margin-top:4px">Las preguntas salen mezcladas y equilibradas entre los tres ejes. No verás si acertaste hasta entregar, como en la prueba real.</p></div>
+    <div><div class="label" style="margin-bottom:8px">Duración</div><div class="seg" id="ex-preset"></div></div>
+    <div><div class="label" style="margin-bottom:8px">Ejes</div><div class="seg" id="ex-ejes"></div></div>
+    <p class="stats" id="ex-summary"></p>
+    <div class="row"><button class="btn primary" id="ex-start">Comenzar simulacro</button></div>
+    ${best ? `<p class="note">Tu mejor resultado: ${best.ok} de ${best.n} (${Math.round((best.ok / best.n) * 100)} %) en ${best.min} minutos.</p>` : ""}
+  </div>`;
+  let preset = "media", ejes = "all";
+  const summary = () => { const p = PRESETS.find((x) => x[0] === preset); const pool = Q.filter((q) => ejes === "all" || q[0] === ejes).length; $("#ex-summary").textContent = `${Math.min(p[2], pool)} preguntas · ${p[3]} minutos`; };
+  segment($("#ex-preset"), PRESETS.map((p) => [p[0], `${p[1]} · ${p[2]} preguntas`]), preset, (v) => { preset = v; summary(); });
+  segment($("#ex-ejes"), EJE_OPTS, ejes, (v) => { ejes = v; summary(); });
+  summary();
+  $("#ex-start").addEventListener("click", () => startExam(PRESETS.find((x) => x[0] === preset), ejes));
+}
+function startExam(p, ejes) {
+  const pool = Q.filter((q) => ejes === "all" || q[0] === ejes);
+  let qs;
+  if (ejes === "all") {
+    const by = { A: shuffle(pool.filter((q) => q[0] === "A")), B: shuffle(pool.filter((q) => q[0] === "B")), C: shuffle(pool.filter((q) => q[0] === "C")) };
+    qs = []; let k = 0; const order = ["A", "B", "C"];
+    while (qs.length < Math.min(p[2], pool.length)) { const e = order[k++ % 3]; if (by[e].length) qs.push(by[e].pop()); }
+    qs = shuffle(qs);
+  } else qs = shuffle(pool).slice(0, p[2]);
+  exam = { qs, ans: Array(qs.length).fill(null), flag: Array(qs.length).fill(false), pos: 0, left: p[3] * 60, min: p[3], done: false, paused: false };
+  tick = setInterval(() => {
+    if (exam.paused || exam.done) return;
+    exam.left--; updateTimer();
+    if (exam.left <= 0) finishExam(true);
+  }, 1000);
+  renderExam();
+}
+const fmtTime = (s) => `${String(Math.floor(Math.max(s, 0) / 60)).padStart(2, "0")}:${String(Math.max(s, 0) % 60).padStart(2, "0")}`;
+function updateTimer() { const t = $("#ex-timer"); if (!t) return; t.textContent = fmtTime(exam.left); t.classList.toggle("low", exam.left <= 120); }
+function renderExam() {
+  const stage = $("#exam-stage");
+  if (exam.done) return renderResults();
+  const q = exam.qs[exam.pos];
+  const answered = exam.ans.filter((a) => a != null).length;
+  stage.innerHTML = `
+    <div class="exam-bar">
+      <div><div class="label">Tiempo restante</div><div class="timer" id="ex-timer" role="timer" aria-live="off">${fmtTime(exam.left)}</div></div>
+      <div class="stats">${answered} de ${exam.qs.length} respondidas</div>
+      <div class="row"><button class="btn" id="ex-pause">${exam.paused ? "Reanudar" : "Pausar"}</button><button class="btn primary" id="ex-finish">Entregar</button></div>
+    </div>
+    <div class="card" ${exam.paused ? "hidden" : ""}>
+      ${questionHTML(q, exam.pos + 1, exam.qs.length, { picked: exam.ans[exam.pos], reveal: false })}
+      <div class="row spread" style="margin-top:16px">
+        <button class="btn" id="ex-flag" aria-pressed="${exam.flag[exam.pos]}">${exam.flag[exam.pos] ? "Quitar marca" : "Marcar para revisar"}</button>
+        <div class="row"><button class="btn" id="ex-prev" ${exam.pos === 0 ? "disabled" : ""}>Anterior</button><button class="btn primary" id="ex-next">${exam.pos + 1 < exam.qs.length ? "Siguiente" : "Revisar y entregar"}</button></div>
+      </div>
+    </div>
+    ${exam.paused ? `<div class="card done-box"><h2>Simulacro en pausa</h2><p class="stats">El tiempo está detenido. Las preguntas se ocultan mientras tanto.</p></div>` : ""}
+    <div class="card"><div class="label" style="margin-bottom:10px">Ir a la pregunta</div><div class="dots">${exam.qs.map((_, i) => `<button class="dot ${exam.ans[i] != null ? "answered" : ""} ${exam.flag[i] ? "flag" : ""} ${i === exam.pos ? "current" : ""}" data-i="${i}" aria-label="Pregunta ${i + 1}${exam.flag[i] ? ", marcada" : ""}">${i + 1}</button>`).join("")}</div>
+    <p class="note" style="margin-top:10px">Borde naranjo: marcada para revisar. Fondo gris: respondida.</p><div id="ex-confirm"></div></div>`;
+  updateTimer();
+  stage.querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => { exam.ans[exam.pos] = +b.dataset.i; renderExam(); }));
+  stage.querySelectorAll(".dot").forEach((b) => b.addEventListener("click", () => { exam.pos = +b.dataset.i; renderExam(); }));
+  $("#ex-prev")?.addEventListener("click", () => { exam.pos--; renderExam(); });
+  $("#ex-next")?.addEventListener("click", () => { if (exam.pos + 1 < exam.qs.length) { exam.pos++; renderExam(); } else confirmFinish(); });
+  $("#ex-flag")?.addEventListener("click", () => { exam.flag[exam.pos] = !exam.flag[exam.pos]; renderExam(); });
+  $("#ex-pause").addEventListener("click", () => { exam.paused = !exam.paused; renderExam(); });
+  $("#ex-finish").addEventListener("click", confirmFinish);
+}
+function confirmFinish() {
+  const blank = exam.ans.filter((a) => a == null).length, flagged = exam.flag.filter(Boolean).length;
+  const box = $("#ex-confirm");
+  box.innerHTML = `<div class="verdict ${blank ? "no" : "ok"}" style="margin-top:14px"><b class="ttl">¿Entregar el simulacro?</b>${blank ? `Te quedan ${blank} sin responder. ` : "Respondiste todas. "}${flagged ? `Tienes ${flagged} marcadas para revisar.` : ""}
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="ex-yes">Sí, entregar</button><button class="btn" id="ex-no">Seguir respondiendo</button></div></div>`;
+  box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  $("#ex-yes").addEventListener("click", () => finishExam(false));
+  $("#ex-no").addEventListener("click", () => { box.innerHTML = ""; });
+}
+function finishExam(timeout) {
+  exam.done = true; exam.timeout = timeout; clearInterval(tick);
+  const ok = exam.qs.filter((q, i) => exam.ans[i] === q[3]).length;
+  const best = store.get("best", null);
+  if (!best || ok / exam.qs.length > best.ok / best.n) store.set("best", { ok, n: exam.qs.length, min: exam.min });
+  exam.review = null;
+  renderResults();
+}
+// Escala chilena de 1,0 a 7,0 con exigencia del 60 %
+const nota = (p) => (p < 0.6 ? 1 + (p / 0.6) * 3 : 4 + ((p - 0.6) / 0.4) * 3);
+function renderResults() {
+  const n = exam.qs.length, ok = exam.qs.filter((q, i) => exam.ans[i] === q[3]).length, p = ok / n;
+  const by = ["A", "B", "C"].map((e) => { const idx = exam.qs.map((q, i) => [q, i]).filter(([q]) => q[0] === e); return [e, idx.filter(([q, i]) => exam.ans[i] === q[3]).length, idx.length]; }).filter((x) => x[2]);
+  const weak = by.filter((x) => x[1] / x[2] < 0.6).map((x) => EJES[x[0]]);
+  const used = exam.min * 60 - Math.max(exam.left, 0);
+  $("#exam-stage").innerHTML = `
+    <div class="card score">
+      <div><div class="big">${ok}/${n}</div><div class="stats">${Math.round(p * 100)} % de logro</div></div>
+      <div style="display:grid;gap:6px">
+        <div class="grade">Nota estimada: ${nota(p).toFixed(1).replace(".", ",")}</div>
+        <p class="stats">${exam.timeout ? "Se acabó el tiempo. " : ""}Usaste ${fmtTime(used)} de ${exam.min}:00. Escala de 1,0 a 7,0 con 60 % de exigencia.</p>
+        <p>${weak.length ? `Refuerza: <b>${weak.join(" y ")}</b>. Vuelve a las tarjetas y a la guía de ese eje.` : "Vas bien en todos los ejes. Prueba el simulacro completo o las preguntas de desarrollo."}</p>
+      </div>
+    </div>
+    <div class="card"><div class="label" style="margin-bottom:12px">Resultado por eje</div><div class="bars">
+      ${by.map(([e, a, t]) => `<div class="barrow"><span class="lab chip ${e}" style="justify-self:start">${EJES[e]}</span><div class="track"><div class="fill" style="width:${(a / t) * 100}%;background:var(--${e.toLowerCase()})"></div></div><span class="n">${a}/${t}</span></div>`).join("")}
+    </div></div>
+    <div class="card"><div class="label" style="margin-bottom:10px">Revisa cada pregunta</div><div class="dots">${exam.qs.map((q, i) => `<button class="dot ${exam.ans[i] === q[3] ? "right" : "wrong"}" data-i="${i}" aria-label="Pregunta ${i + 1}, ${exam.ans[i] === q[3] ? "correcta" : "incorrecta"}">${i + 1}</button>`).join("")}</div>
+      <div id="ex-review" style="margin-top:14px"></div></div>
+    <div class="row"><button class="btn primary" id="ex-new">Nuevo simulacro</button></div>`;
+  const showReview = (i) => {
+    exam.review = i;
+    const q = exam.qs[i];
+    $("#ex-review").innerHTML = exam.ans[i] == null
+      ? `${questionHTML(q, i + 1, n, { picked: null, reveal: false }).replace(/<button class="opt/g, '<button disabled class="opt')}<div class="verdict no"><b class="ttl">Sin responder</b>La respuesta correcta es <b>${esc(q[2][q[3]][0])}</b>. ${esc(q[2][q[3]][1].replace(/^Correcto[.:]?\s*/, ""))}</div>`
+      : questionHTML(q, i + 1, n, { picked: exam.ans[i], reveal: true });
+  };
+  document.querySelectorAll("#exam-stage .dot").forEach((b) => b.addEventListener("click", () => showReview(+b.dataset.i)));
+  const firstWrong = exam.qs.findIndex((q, i) => exam.ans[i] !== q[3]);
+  showReview(exam.review ?? (firstWrong >= 0 ? firstWrong : 0));
+  $("#ex-new").addEventListener("click", () => { exam = null; renderSetup(); });
+}
+renderSetup();
+</script>
