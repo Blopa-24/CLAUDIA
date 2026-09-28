@@ -1,0 +1,414 @@
+
+
+name: database
+description: Database architecture, persistence, offline storage, synchronization, migrations and security for the gym application. Use when implementing schemas, repositories, Supabase, SQLite, synchronization or user data.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# DATABASE SKILL
+
+The database is responsible for preserving the user's training history reliably.
+
+---
+
+# 1. PRINCIPLE
+
+User workout history is valuable data.
+
+Never design persistence as an afterthought.
+
+The application must distinguish between:
+
+LOCAL DATA
+
+and
+
+REMOTE DATA.
+
+---
+
+# 2. CORE ENTITIES
+
+At minimum consider:
+
+users
+profiles
+exercises
+custom_exercises
+routines
+routine_exercises
+workout_sessions
+workout_exercises
+sets
+personal_records
+body_weight_entries
+body_measurements
+progress_photos
+goals
+goal_progress
+user_settings
+
+Adapt naming to the actual database conventions.
+
+---
+
+# 3. ROUTINES VS HISTORY
+
+A routine is a template.
+
+A workout session is historical data.
+
+Never allow editing a routine to silently modify previous workout sessions.
+
+Historical records should preserve the information required to understand what actually happened.
+
+---
+
+# 4. IDENTIFIERS
+
+Prefer UUIDs for persisted entities where appropriate.
+
+Every important entity should have:
+
+id
+created_at
+updated_at
+
+Use timestamps consistently.
+
+---
+
+# 5. RELATIONSHIPS
+
+Use foreign keys.
+
+Example:
+
+user
+↓
+routine
+↓
+routine_exercise
+
+user
+↓
+workout_session
+↓
+workout_exercise
+↓
+set
+
+Avoid storing relational structures as giant JSON blobs when proper relational modeling is more appropriate.
+
+JSON can be used where flexible metadata is genuinely useful.
+
+---
+
+# 6. LOCAL DATABASE
+
+Workout logging must work offline.
+
+Local storage should support:
+
+* create
+* update
+* query
+* delete where appropriate
+* transactions
+* indexes
+* persistence across app restarts
+
+Do not use AsyncStorage as the primary database for complex workout history.
+
+Use SQLite or another appropriate structured local database.
+
+---
+
+# 7. REPOSITORY LAYER
+
+UI should not directly manipulate the database.
+
+Prefer:
+
+Screen
+↓
+Hook
+↓
+Service / Use Case
+↓
+Repository
+↓
+Local Database
+
+Remote synchronization should be handled separately.
+
+---
+
+# 8. SYNC
+
+Preferred conceptual architecture:
+
+UI
+↓
+Local Repository
+↓
+Local Database
+↓
+Sync Queue
+↓
+Remote Database
+
+When online:
+
+pending changes
+↓
+sync
+↓
+remote confirmation
+↓
+mark synchronized
+
+---
+
+# 9. OFFLINE WRITE
+
+For workout data:
+
+WRITE LOCALLY FIRST.
+
+Do not make the user wait for network requests before confirming a set.
+
+Example:
+
+User completes set
+↓
+save locally
+↓
+UI shows Saved
+↓
+queue synchronization
+↓
+sync remotely
+
+---
+
+# 10. SYNC STATUS
+
+Records may have a synchronization state such as:
+
+pending
+syncing
+synced
+failed
+
+Do not expose implementation complexity unnecessarily in the UI.
+
+Use simple messages:
+
+Saved
+Syncing
+Offline
+Sync failed
+
+---
+
+# 11. RETRY
+
+Failed synchronization should support retry.
+
+Do not create infinite aggressive retry loops.
+
+Use sensible backoff.
+
+The application must remain usable while synchronization is failing.
+
+---
+
+# 12. CONFLICTS
+
+Define a strategy before implementing synchronization.
+
+Do not silently overwrite user data.
+
+For simple append-only workout records, conflicts can often be minimized.
+
+For editable records, determine whether:
+
+* last-write-wins
+* version comparison
+* merge
+* manual resolution
+
+is appropriate.
+
+Document the chosen strategy.
+
+---
+
+# 13. TRANSACTIONS
+
+Use database transactions for operations that must remain atomic.
+
+For example:
+
+finishing a workout may update:
+
+workout session
++
+sets
++
+statistics
++
+sync state
+
+Do not leave half-completed state when atomicity is required.
+
+---
+
+# 14. INDEXES
+
+Index frequently queried fields.
+
+Potential examples:
+
+user_id
+created_at
+exercise_id
+workout_session_id
+routine_id
+
+Do not blindly create indexes for every column.
+
+---
+
+# 15. SUPABASE
+
+If Supabase is used:
+
+* use migrations
+* use Row Level Security
+* never expose service-role keys in the mobile app
+* use the public client safely
+* ensure users can access only their own private data
+
+User-owned tables should have policies appropriate to authenticated ownership.
+
+---
+
+# 16. SECURITY
+
+Private data includes:
+
+* workout history
+* body weight
+* measurements
+* progress photos
+* personal goals
+
+Treat these as user-owned data.
+
+Progress photos require particular privacy attention.
+
+Never create a public bucket for private progress photos unless there is an explicit product requirement.
+
+---
+
+# 17. MIGRATIONS
+
+Never manually modify production schema without understanding migration history.
+
+Every schema change should be reproducible.
+
+Avoid destructive migrations unless absolutely necessary.
+
+If a destructive migration is necessary:
+
+* explain it
+* back up data
+* document it
+* test it
+
+---
+
+# 18. DATA VALIDATION
+
+Validate data before persistence.
+
+Examples:
+
+weight must be within a reasonable technical range
+
+reps cannot be negative
+
+RIR cannot be negative
+
+timestamps must be valid
+
+foreign keys must exist
+
+Do not use arbitrary limits that prevent legitimate advanced training.
+
+Validation should prevent corrupt data without unnecessarily restricting users.
+
+---
+
+# 19. DELETIONS
+
+Prefer soft deletion when historical relationships make hard deletion dangerous.
+
+Exercise deletion should not destroy historical workout records.
+
+A custom exercise that was previously used must not make old workouts unreadable.
+
+---
+
+# 20. EXPORT
+
+The user should be able to export their data.
+
+At minimum:
+
+JSON
+
+Preferably:
+
+CSV for tabular records.
+
+The export should contain enough information to reconstruct meaningful workout history.
+
+---
+
+# 21. IMPORT
+
+Import must validate data before inserting it.
+
+Never blindly insert arbitrary JSON into production tables.
+
+Show meaningful errors when import data is invalid.
+
+---
+
+# 22. TEST DATABASE OPERATIONS
+
+Test:
+
+* create routine
+* update routine
+* create workout
+* complete set
+* persist offline
+* reopen application
+* synchronize
+* failed synchronization
+* retry
+* export
+* import
+
+---
+
+# 23. DATABASE PRINCIPLE
+
+The user should never lose a completed workout because the internet was unavailable.
+
+Local persistence is the source of truth for immediate workout interaction.
+
+Remote synchronization is a separate concern.
