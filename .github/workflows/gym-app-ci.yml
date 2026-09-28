@@ -1,0 +1,48 @@
+name: GymSuper CI
+
+on:
+  push:
+    paths:
+      - "gym-app/**"
+      - ".github/workflows/gym-app-ci.yml"
+  pull_request:
+    paths:
+      - "gym-app/**"
+      - ".github/workflows/gym-app-ci.yml"
+
+concurrency:
+  group: gym-app-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: gym-app
+    env:
+      EXPO_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: gym-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run format:check
+
+      - name: Test
+        run: npm test -- --ci
