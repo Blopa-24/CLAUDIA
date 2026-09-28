@@ -11,9 +11,11 @@ export interface EmptyStateProps {
   body: string;
   /** Etiqueta visible para marcar funciones que todavía no existen (CLAUDE.md, sección 19). */
   badge?: string;
+  /** Acción para salir del estado vacío, por ejemplo reintentar. */
+  action?: ReactNode;
 }
 
-export function EmptyState({ icon, title, body, badge }: EmptyStateProps) {
+export function EmptyState({ icon, title, body, badge, action }: EmptyStateProps) {
   const { colors, spacing, radius } = useTheme();
   return (
     <View
@@ -43,6 +45,7 @@ export function EmptyState({ icon, title, body, badge }: EmptyStateProps) {
           </AppText>
         </View>
       ) : null}
+      {action ? <View style={{ marginTop: spacing.sm }}>{action}</View> : null}
     </View>
   );
 }

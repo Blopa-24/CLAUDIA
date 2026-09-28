@@ -6,6 +6,14 @@ export const en: Translation = {
   },
   common: {
     comingSoon: "Coming soon",
+    retry: "Try again",
+    loading: "Loading…",
+  },
+  startup: {
+    databaseError: {
+      title: "We couldn't open your data",
+      body: "Try again. If the problem persists, close the app and open it again.",
+    },
   },
   tabs: {
     home: "Home",
@@ -23,20 +31,72 @@ export const en: Translation = {
       title: "Your history is empty",
       body: "Every workout you finish will show up here, with its sets and records.",
     },
-    exercises: {
-      title: "Library in progress",
-      body: "This is where you'll search and filter exercises and create your own.",
-    },
     progress: {
       title: "No progress data yet",
       body: "Once you log workouts, you'll see your strength, volume and records here.",
     },
   },
+  exercises: {
+    search: "Search exercises",
+    searchPlaceholder: "Search by name",
+    clearSearch: "Clear search",
+    muscleFilter: "Filter by muscle",
+    allMuscles: "All",
+    count_one: "{{count}} exercise",
+    count_other: "{{count}} exercises",
+    libraryNote:
+      "Library included with GymSuper. Soon you'll be able to create your own exercises.",
+    noResults: {
+      title: "No results",
+      body: "No exercise matches your search and the selected muscle.",
+      action: "Show all exercises",
+    },
+    empty: {
+      title: "The library is empty",
+      body: "We couldn't find any exercises on this phone. Close the app and open it again.",
+    },
+    loadError: {
+      title: "We couldn't load the exercises",
+      body: "Try again in a few seconds.",
+    },
+  },
+  muscles: {
+    chest: "Chest",
+    back: "Back",
+    shoulders: "Shoulders",
+    biceps: "Biceps",
+    triceps: "Triceps",
+    forearms: "Forearms",
+    abs: "Abs",
+    quads: "Quads",
+    hamstrings: "Hamstrings",
+    glutes: "Glutes",
+    calves: "Calves",
+    full_body: "Full body",
+  },
+  equipment: {
+    barbell: "Barbell",
+    dumbbell: "Dumbbells",
+    machine: "Machine",
+    cable: "Cable",
+    smith_machine: "Smith machine",
+    kettlebell: "Kettlebell",
+    band: "Resistance band",
+    bodyweight: "Bodyweight",
+    other: "Other",
+  },
   profile: {
     appearance: "Appearance",
     accent: "Accent color",
     accentHint: "Used for buttons and anything that is active.",
-    moreSoon: "Weight unit, language and theme: coming soon.",
+    units: "Units",
+    weightUnit: "Weight unit",
+    weightUnitHint: "Used to log and show weights. Changing it doesn't alter what you've logged.",
+    moreSoon: "Language and theme: coming soon.",
+  },
+  weightUnits: {
+    kg: "Kilograms (kg)",
+    lb: "Pounds (lb)",
   },
   accents: {
     blue: "Blue",

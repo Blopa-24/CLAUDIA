@@ -1,5 +1,5 @@
-import { SectionPlaceholder } from "@/ui/components";
+import { ExercisesScreen } from "@/features/exercises/ui/exercises-screen";
 
-export default function ExercisesScreen() {
-  return <SectionPlaceholder section="exercises" />;
+export default function ExercisesRoute() {
+  return <ExercisesScreen />;
 }

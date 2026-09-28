@@ -6,9 +6,10 @@ import { EmptyState } from "./empty-state";
 import { Screen } from "./screen";
 import { Icon, type IconName } from "./tab-icon";
 
-/** Pantalla de una sección que todavía no existe, marcada como tal (CLAUDE.md, sección 19). */
 /** Secciones que aún no tienen contenido real. */
-export type PlaceholderSection = Exclude<IconName, "profile">;
+export type PlaceholderSection = Exclude<IconName, "profile" | "exercises">;
+
+/** Pantalla de una sección que todavía no existe, marcada como tal (CLAUDE.md, sección 19). */
 
 export function SectionPlaceholder({ section }: { section: PlaceholderSection }) {
   const { t } = useTranslation();

@@ -6,12 +6,15 @@ import { AppText } from "@/ui/components";
 import { useTheme } from "@/ui/theme";
 
 import { AccentPicker } from "./accent-picker";
+import { WeightUnitPicker } from "./weight-unit-picker";
 
 export function ProfileScreen() {
   const { t } = useTranslation();
   const { colors, spacing } = useTheme();
   const accent = usePreferences((state) => state.accent);
   const setAccent = usePreferences((state) => state.setAccent);
+  const weightUnit = usePreferences((state) => state.weightUnit);
+  const setWeightUnit = usePreferences((state) => state.setWeightUnit);
 
   return (
     <ScrollView
@@ -29,6 +32,18 @@ export function ProfileScreen() {
           </AppText>
         </View>
         <AccentPicker value={accent} onChange={setAccent} />
+      </View>
+      <View style={{ gap: spacing.md }}>
+        <AppText variant="title" accessibilityRole="header">
+          {t("profile.units")}
+        </AppText>
+        <View style={{ gap: spacing.xs }}>
+          <AppText>{t("profile.weightUnit")}</AppText>
+          <AppText variant="small" tone="secondary">
+            {t("profile.weightUnitHint")}
+          </AppText>
+        </View>
+        <WeightUnitPicker value={weightUnit} onChange={setWeightUnit} />
       </View>
       <AppText variant="small" tone="muted">
         {t("profile.moreSoon")}

@@ -1,3 +1,4 @@
+export { AppButton, type AppButtonProps } from "./app-button";
 export { AppText, type AppTextProps } from "./app-text";
 export { EmptyState, type EmptyStateProps } from "./empty-state";
 export { Screen } from "./screen";
