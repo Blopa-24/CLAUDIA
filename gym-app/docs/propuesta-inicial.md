@@ -1,6 +1,6 @@
 # Propuesta inicial: app de gimnasio
 
-**Estado:** propuesta, pendiente de aprobación. No hay código todavía.
+**Estado:** aprobada el 28 de septiembre de 2026. M0 y M1 están implementados; lo construido se describe en [`ARCHITECTURE.md`](ARCHITECTURE.md) y [`DOMAIN.md`](DOMAIN.md).
 **Fecha:** 28 de septiembre de 2026.
 **Base:** `CLAUDE.md` (secciones 1 a 23) y las skills `gym-domain`, `workout-engine`, `database`, `mobile-ui` y `qa`.
 
@@ -307,16 +307,20 @@ Propongo empezar con M0 y M1 juntos, porque M1 no necesita pantallas y se puede 
 
 ---
 
-## 7. Decisiones que necesito de ti
+## 7. Decisiones tomadas
 
-Para cada punto dejo una propuesta por defecto. Si no me dices otra cosa, sigo con ella.
+| Decisión                         | Resultado                                                                                                                                                                  |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nombre de la app                 | **GymSuper**                                                                                                                                                               |
+| Idioma por defecto               | Español, con inglés disponible                                                                                                                                             |
+| Unidad por defecto               | Kilogramos                                                                                                                                                                 |
+| ¿Cuenta obligatoria?             | No. La app funciona sin cuenta; la cuenta llega en M6 para respaldar y sincronizar                                                                                         |
+| Cómo se prueba                   | En un teléfono **Android** con Expo Go                                                                                                                                     |
+| Biblioteca inicial de ejercicios | Unos 60 ejercicios comunes, en español e inglés, marcados como datos de ejemplo                                                                                            |
+| Paleta                           | Discos olímpicos para los colores fijos, más **cuatro acentos elegibles**: azul, violeta, cian y rosa. El naranjo se descartó porque se confunde con el amarillo de récord |
 
-| Decisión                         | Propuesta por defecto                                                                                 |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Nombre de la app                 | "Gym App" como nombre provisorio                                                                      |
-| Idioma por defecto               | Español, con inglés disponible                                                                        |
-| Unidad por defecto               | Kilogramos                                                                                            |
-| ¿Cuenta obligatoria?             | No. La app funciona sin cuenta desde el principio; la cuenta llega en M6 para respaldar y sincronizar |
-| ¿Cómo la vas a probar?           | En tu teléfono con Expo Go. Dime si usas Android o iPhone                                             |
-| Biblioteca inicial de ejercicios | Unos 60 ejercicios comunes, con nombres en español e inglés, marcados como datos de ejemplo           |
-| Paleta de los discos olímpicos   | Sí                                                                                                    |
+### Ajustes respecto de esta propuesta
+
+- La plantilla de Expo SDK 57 fija **React Native 0.86** y **TypeScript 6.0**, no 0.87 y 7.0 como decía la sección 2.1.
+- Las rutas viven en **`src/app/`**, la convención de la plantilla, y no en `app/`.
+- Las preferencias (el acento elegido) se guardan con Zustand sobre el almacén clave-valor de `expo-sqlite`, antes de M2.
