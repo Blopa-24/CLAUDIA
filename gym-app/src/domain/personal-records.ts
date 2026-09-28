@@ -75,16 +75,15 @@ export function evaluateSessionRecords(
     bestSessionVolumeKg: null,
     repsAtWeightGrams: {},
   };
-  if (exercise.trackingType !== "weight_reps") return { bests: base, newRecords: [] };
-
   const valid = sets.filter(isValidSet);
-  if (valid.length === 0) return { bests: base, newRecords: [] };
+  // totalVolume es null en ejercicios sin peso: ahí no hay récords en kg.
+  const volume = totalVolume(valid, exercise);
+  if (valid.length === 0 || volume === null) return { bests: base, newRecords: [] };
 
   // Mejores valores de esta sesión
   const heaviest = Math.max(...valid.map((s) => s.weightKg));
   const e1rms = valid.map((s) => estimateOneRepMax(s.weightKg, s.reps)).filter((v) => v !== null);
   const bestE1rm = e1rms.length > 0 ? Math.max(...e1rms) : null;
-  const volume = totalVolume(valid, exercise) ?? 0;
   const repsAtWeight = new Map<number, number>();
   for (const s of valid) {
     const g = toGrams(s.weightKg);

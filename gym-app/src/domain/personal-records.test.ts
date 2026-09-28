@@ -104,10 +104,24 @@ describe("series que no cuentan", () => {
     expect(r.bests).toEqual(history);
   });
 
-  it("no calcula récords en ejercicios sin peso", () => {
+  it.each([
+    ["sin peso", set(0, 20)],
+    ["con lastre", set(10, 12)],
+  ])("no calcula récords en ejercicios de peso corporal (serie %s)", (_name, s) => {
     const pullUp: ExerciseTracking = { trackingType: "reps_only", laterality: "bilateral" };
-    const r = evaluateSessionRecords(history, [set(0, 20)], pullUp);
+    const r = evaluateSessionRecords(history, [s], pullUp);
     expect(r).toEqual({ bests: history, newRecords: [] });
+  });
+
+  it("con series de más de 12 reps no compara 1RM, pero sí peso y reps", () => {
+    const r = evaluateSessionRecords(history, [set(80, 15)], bench);
+    expect(r.bests.bestE1rmKg).toBe(120);
+    expect(r.newRecords).toContainEqual({
+      kind: "most_reps_at_weight",
+      value: 15,
+      previous: 8,
+      weightKg: 80,
+    });
   });
 
   it("es determinista: el orden de las series no cambia el resultado", () => {
