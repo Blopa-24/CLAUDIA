@@ -41,6 +41,13 @@ Funciones puras en `src/domain/`, sin React ni base de datos, cada una con sus t
 - Los ejercicios sin peso no generan récords en kg.
 - El resultado no depende del orden de las series.
 
+## Búsqueda de ejercicios (`exercise.ts`)
+
+- Busca en el nombre en español y en inglés, sin importar tildes ni mayúsculas.
+- Cada palabra escrita tiene que aparecer, en cualquier orden: "banca press" encuentra "Press de banca".
+- El filtro de músculo mira solo el músculo principal.
+- Los resultados se ordenan alfabéticamente en el idioma de la app.
+
 ## Estados de un entrenamiento (`workout-session.ts`)
 
 ```
