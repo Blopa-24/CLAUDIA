@@ -1,0 +1,5 @@
+package-lock.json
+assets/
+.expo/
+dist/
+coverage/
