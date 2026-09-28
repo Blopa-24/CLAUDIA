@@ -43,5 +43,6 @@ El CI de GitHub (`.github/workflows/gym-app-ci.yml`) corre typecheck, lint, form
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): stack, capas, estructura y decisiones.
 - [`docs/DOMAIN.md`](docs/DOMAIN.md): reglas de cálculo del dominio.
-- [`docs/propuesta-inicial.md`](docs/propuesta-inicial.md): propuesta aprobada y hoja de ruta.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md): estado de cada hito, siguiente paso y decisiones tomadas.
+- [`docs/propuesta-inicial.md`](docs/propuesta-inicial.md): propuesta aprobada con el plan completo.
 - Reglas del proyecto: [`CLAUDE.md`](../CLAUDE.md) de la raíz y las skills en `.claude/skills/`. `AGENTS.md` trae las convenciones de Expo SDK 57.
