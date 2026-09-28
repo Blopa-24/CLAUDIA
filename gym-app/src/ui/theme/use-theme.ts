@@ -1,6 +1,8 @@
 import { useColorScheme } from "react-native";
 
-import { colors, type ColorScheme, type ColorTokens } from "./colors";
+import { usePreferences } from "@/state/preferences";
+
+import { buildColors, type ColorScheme, type ColorTokens } from "./colors";
 import { fontFamily, fontSize, radius, spacing, touch } from "./tokens";
 
 export interface Theme {
@@ -20,5 +22,14 @@ export function resolveScheme(system: string | null | undefined): ColorScheme {
 
 export function useTheme(): Theme {
   const scheme = resolveScheme(useColorScheme());
-  return { scheme, colors: colors[scheme], spacing, radius, touch, fontFamily, fontSize };
+  const accent = usePreferences((state) => state.accent);
+  return {
+    scheme,
+    colors: buildColors(scheme, accent),
+    spacing,
+    radius,
+    touch,
+    fontFamily,
+    fontSize,
+  };
 }

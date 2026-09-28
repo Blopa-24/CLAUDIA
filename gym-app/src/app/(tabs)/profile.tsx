@@ -1,5 +1,5 @@
-import { SectionPlaceholder } from "@/ui/components";
+import { ProfileScreen } from "@/features/settings/ui/profile-screen";
 
-export default function ProfileScreen() {
-  return <SectionPlaceholder section="profile" />;
+export default function ProfileRoute() {
+  return <ProfileScreen />;
 }

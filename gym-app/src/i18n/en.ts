@@ -31,9 +31,17 @@ export const en: Translation = {
       title: "No progress data yet",
       body: "Once you log workouts, you'll see your strength, volume and records here.",
     },
-    profile: {
-      title: "Your profile",
-      body: "This is where you'll choose your weight unit, language and theme.",
-    },
+  },
+  profile: {
+    appearance: "Appearance",
+    accent: "Accent color",
+    accentHint: "Used for buttons and anything that is active.",
+    moreSoon: "Weight unit, language and theme: coming soon.",
+  },
+  accents: {
+    blue: "Blue",
+    violet: "Violet",
+    cyan: "Cyan",
+    pink: "Pink",
   },
 };

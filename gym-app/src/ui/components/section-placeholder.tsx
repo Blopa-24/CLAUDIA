@@ -7,7 +7,10 @@ import { Screen } from "./screen";
 import { Icon, type IconName } from "./tab-icon";
 
 /** Pantalla de una sección que todavía no existe, marcada como tal (CLAUDE.md, sección 19). */
-export function SectionPlaceholder({ section }: { section: IconName }) {
+/** Secciones que aún no tienen contenido real. */
+export type PlaceholderSection = Exclude<IconName, "profile">;
+
+export function SectionPlaceholder({ section }: { section: PlaceholderSection }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   return (

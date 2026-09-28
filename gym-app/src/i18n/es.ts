@@ -30,9 +30,17 @@ export const es = {
       title: "Aún no hay datos de progreso",
       body: "Cuando registres entrenamientos, aquí vas a ver tu fuerza, tu volumen y tus récords.",
     },
-    profile: {
-      title: "Tu perfil",
-      body: "Aquí vas a elegir tu unidad de peso, el idioma y el tema.",
-    },
+  },
+  profile: {
+    appearance: "Apariencia",
+    accent: "Color de acento",
+    accentHint: "Se usa en los botones y en lo que está activo.",
+    moreSoon: "Unidad de peso, idioma y tema: disponible pronto.",
+  },
+  accents: {
+    blue: "Azul",
+    violet: "Violeta",
+    cyan: "Cian",
+    pink: "Rosa",
   },
 } as const;

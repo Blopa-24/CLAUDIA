@@ -1,6 +1,7 @@
 // Paleta de GymSuper: los colores de los discos olímpicos (propuesta, sección 4.2).
-// Azul = disco de 20 kg, verde = 10 kg, amarillo = 15 kg, rojo = 25 kg.
-// El test de contraste (colors.test.ts) valida cada combinación en los dos temas.
+// Verde = 10 kg (éxito), amarillo = 15 kg (récord), rojo = 25 kg (peligro). Esos tres son fijos.
+// El color principal (acento) se elige entre ACCENTS; el azul del disco de 20 kg es el de fábrica.
+// Los tests (colors.test.ts) validan contraste AA y que ningún acento se confunda con los fijos.
 // `record` (amarillo) se usa solo como insignia rellena con `onRecord` encima: sobre el fondo
 // claro no alcanza 3:1, así que nunca se usa como ícono o texto suelto.
 
@@ -24,7 +25,32 @@ export interface ColorTokens {
   onDanger: string;
 }
 
-export const colors: Record<ColorScheme, ColorTokens> = {
+type AccentTokens = Pick<ColorTokens, "primary" | "onPrimary">;
+
+export const ACCENTS = ["blue", "violet", "cyan", "pink"] as const;
+export type AccentName = (typeof ACCENTS)[number];
+export const DEFAULT_ACCENT: AccentName = "blue";
+
+export const accents: Record<AccentName, Record<ColorScheme, AccentTokens>> = {
+  blue: {
+    dark: { primary: "#5b9bff", onPrimary: "#08101f" },
+    light: { primary: "#1a5bcc", onPrimary: "#ffffff" },
+  },
+  violet: {
+    dark: { primary: "#a98bff", onPrimary: "#120a24" },
+    light: { primary: "#6a45d6", onPrimary: "#ffffff" },
+  },
+  cyan: {
+    dark: { primary: "#33c7d9", onPrimary: "#031417" },
+    light: { primary: "#0b6f84", onPrimary: "#ffffff" },
+  },
+  pink: {
+    dark: { primary: "#f47bbd", onPrimary: "#22051a" },
+    light: { primary: "#b8226a", onPrimary: "#ffffff" },
+  },
+};
+
+const base: Record<ColorScheme, Omit<ColorTokens, keyof AccentTokens>> = {
   dark: {
     background: "#0e1116",
     surface: "#161a21",
@@ -33,8 +59,6 @@ export const colors: Record<ColorScheme, ColorTokens> = {
     text: "#f2f4f7",
     textSecondary: "#b6bdc8",
     textMuted: "#8d96a3",
-    primary: "#5b9bff",
-    onPrimary: "#08101f",
     success: "#3ccb7f",
     onSuccess: "#05140c",
     record: "#ffc933",
@@ -50,8 +74,6 @@ export const colors: Record<ColorScheme, ColorTokens> = {
     text: "#11151b",
     textSecondary: "#454d5a",
     textMuted: "#5f6876",
-    primary: "#1a5bcc",
-    onPrimary: "#ffffff",
     success: "#157a42",
     onSuccess: "#ffffff",
     record: "#f2b705",
@@ -59,4 +81,14 @@ export const colors: Record<ColorScheme, ColorTokens> = {
     danger: "#c62828",
     onDanger: "#ffffff",
   },
+};
+
+export function buildColors(scheme: ColorScheme, accent: AccentName = DEFAULT_ACCENT): ColorTokens {
+  return { ...base[scheme], ...accents[accent][scheme] };
+}
+
+/** Paleta de fábrica (acento azul) en cada tema. */
+export const colors: Record<ColorScheme, ColorTokens> = {
+  dark: buildColors("dark"),
+  light: buildColors("light"),
 };
