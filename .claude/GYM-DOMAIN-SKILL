@@ -1,0 +1,266 @@
+
+---
+
+name: gym-domain
+description: Domain knowledge and business rules for the gym workout tracking application. Use when implementing exercises, routines, sets, reps, RIR, RPE, volume, PRs, progression, body metrics or fitness-related data models.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# GYM DOMAIN SKILL
+
+This skill defines the business domain of the application.
+
+## Core entities
+
+The application should distinguish between:
+
+* Exercise
+* ExerciseVariant
+* Routine
+* RoutineExercise
+* WorkoutSession
+* WorkoutExercise
+* Set
+* PersonalRecord
+* BodyWeightEntry
+* BodyMeasurement
+* Goal
+
+Do not mix routine definitions with historical workout records.
+
+A routine describes what the user plans to do.
+
+A workout session describes what the user actually did.
+
+Historical data must remain stable even if a routine is later edited.
+
+---
+
+## SET TYPES
+
+Support at least:
+
+* warmup
+* working
+* dropset
+* failure
+* amrap
+
+Each set may contain:
+
+* weight
+* reps
+* RIR
+* RPE
+* duration
+* distance
+* rest
+* completed
+* notes
+* timestamp
+
+Not every exercise uses every field.
+
+The data model must accommodate different tracking types.
+
+---
+
+## WEIGHT
+
+Support:
+
+* kg
+* lb
+
+Store data consistently internally and convert only at the presentation layer where possible.
+
+Never round stored values unnecessarily.
+
+---
+
+## REPS
+
+Repetitions can be:
+
+* integer
+* range target
+
+A target such as:
+
+8–12
+
+is different from an actual completed value:
+
+10
+
+Do not confuse target values with historical performance.
+
+---
+
+## RIR
+
+RIR means Reps In Reserve.
+
+Examples:
+
+RIR 3
+RIR 2
+RIR 1
+RIR 0
+
+Store it as a numeric value when known.
+
+Allow null when the user does not record it.
+
+---
+
+## RPE
+
+RPE may be recorded independently from RIR.
+
+Do not automatically infer RPE from RIR unless the application explicitly documents the relationship.
+
+---
+
+## VOLUME
+
+For conventional resistance exercises:
+
+volume = weight × repetitions
+
+For multiple sets:
+
+total volume = sum(weight × repetitions)
+
+Be explicit about how volume is calculated for:
+
+* unilateral exercises
+* bodyweight exercises
+* duration-based exercises
+* distance-based exercises
+
+Do not pretend every exercise has meaningful kilogram volume.
+
+---
+
+## ESTIMATED 1RM
+
+Use a documented formula.
+
+Prefer Epley unless there is a product-level reason to use another formula:
+
+estimated1RM = weight × (1 + reps / 30)
+
+Do not calculate 1RM from invalid data.
+
+Do not calculate meaningful 1RM from arbitrary cardio/duration exercises.
+
+Keep the calculation in domain/business logic.
+
+---
+
+## PERSONAL RECORDS
+
+Potential PR categories:
+
+* heaviest weight
+* most repetitions at a given weight
+* estimated 1RM
+* total volume
+* best performance for a rep range
+
+Define exactly what constitutes a PR.
+
+Do not silently change PR definitions later.
+
+PR calculations must be deterministic and tested.
+
+---
+
+## EXERCISE CLASSIFICATION
+
+Exercises can have:
+
+* primary muscle
+* secondary muscles
+* equipment
+* movement pattern
+* difficulty
+* unilateral/bilateral
+* tracking type
+
+Examples of equipment:
+
+* barbell
+* dumbbell
+* cable
+* machine
+* kettlebell
+* resistance band
+* bodyweight
+* smith machine
+* other
+
+Examples of movement patterns:
+
+* horizontal push
+* vertical push
+* horizontal pull
+* vertical pull
+* squat
+* hinge
+* lunge
+* carry
+* isolation
+* core
+* cardio
+
+---
+
+## PROGRESSION
+
+Progression suggestions must be treated as configurable product logic.
+
+Example:
+
+If the user completes all target sets within the target rep range and records sufficient RIR:
+
+suggest considering a weight increase.
+
+This is a suggestion, not medical advice.
+
+Do not make medical or injury-related claims.
+
+---
+
+## BODY METRICS
+
+Body weight is separate from workout performance.
+
+Measurements may include:
+
+* waist
+* chest
+* hips
+* left arm
+* right arm
+* left thigh
+* right thigh
+* calf
+* neck
+
+Allow custom measurements.
+
+Never require body measurements to use the application.
+
+---
+
+## DOMAIN RULE
+
+Whenever a business calculation is implemented:
+
+1. define the rule
+2. create a pure function
+3. test the function
+4. expose it to UI through a clean interface
+
+Do not bury domain calculations inside screens.
