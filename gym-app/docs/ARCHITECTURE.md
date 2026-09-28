@@ -1,21 +1,23 @@
 # Arquitectura
 
-Describe lo que está implementado hoy (hitos M0 y M1). Lo planificado está en [`propuesta-inicial.md`](propuesta-inicial.md).
+Describe lo que está implementado hoy (hitos M0, M1 y M2). Lo planificado está en [`propuesta-inicial.md`](propuesta-inicial.md).
 
 ## Stack
 
-| Área                           | Paquete                                                                                              | Versión       |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------- |
-| Framework                      | Expo / React Native                                                                                  | SDK 57 / 0.86 |
-| Navegación                     | Expo Router (rutas en `src/app/`)                                                                    | 57            |
-| Lenguaje                       | TypeScript `strict` + `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch` | 6.0           |
-| Estado de UI y preferencias    | Zustand con `persist`                                                                                | 5             |
-| Almacenamiento de preferencias | `expo-sqlite/kv-store`                                                                               | 57            |
-| Idiomas                        | i18next + react-i18next + expo-localization                                                          | 26 / 17 / 57  |
-| Íconos                         | expo-symbols (SF Symbols en iOS, Material Symbols en Android y web)                                  | 57            |
-| Números grandes                | Barlow Semi Condensed (`@expo-google-fonts`)                                                         | —             |
-| Tests                          | Jest 29 + jest-expo + React Native Testing Library 14                                                | —             |
-| Lint y formato                 | ESLint 9 (eslint-config-expo) + Prettier 3                                                           | —             |
+| Área                           | Paquete                                                                                              | Versión          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------- | ---------------- |
+| Framework                      | Expo / React Native                                                                                  | SDK 57 / 0.86    |
+| Navegación                     | Expo Router (rutas en `src/app/`)                                                                    | 57               |
+| Lenguaje                       | TypeScript `strict` + `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch` | 6.0              |
+| Estado de UI y preferencias    | Zustand con `persist`                                                                                | 5                |
+| Almacenamiento de preferencias | `expo-sqlite/kv-store`                                                                               | 57               |
+| Base de datos local            | expo-sqlite (API asíncrona) + Drizzle ORM (`sqlite-proxy`) + drizzle-kit                             | 57 / 0.45 / 0.31 |
+| Base en los tests              | better-sqlite3 en memoria, con las mismas migraciones                                                | 13               |
+| Idiomas                        | i18next + react-i18next + expo-localization                                                          | 26 / 17 / 57     |
+| Íconos                         | expo-symbols (SF Symbols en iOS, Material Symbols en Android y web)                                  | 57               |
+| Números grandes                | Barlow Semi Condensed (`@expo-google-fonts`)                                                         | —                |
+| Tests                          | Jest 29 + jest-expo + React Native Testing Library 14                                                | —                |
+| Lint y formato                 | ESLint 9 (eslint-config-expo) + Prettier 3                                                           | —                |
 
 Las dependencias nativas se instalan con `npx expo install` (ver `AGENTS.md`), para que calcen con SDK 57.
 
@@ -24,6 +26,8 @@ Las dependencias nativas se instalan con `npx expo install` (ver `AGENTS.md`), p
 ```
 src/app/            rutas de Expo Router (delgadas: solo montan pantallas)
 src/features/*/ui   pantallas y componentes de cada función
+src/features/*/hooks conectan pantallas con datos (hoy leen del repositorio; los servicios llegan con M3)
+src/db/             esquema, migraciones, repositorios y biblioteca incluida
 src/state/          estado global persistido (preferencias)
 src/ui/             design system: tema y componentes base
 src/domain/         lógica pura del gimnasio
@@ -35,7 +39,18 @@ ESLint impone dos reglas (`eslint.config.js`):
 - `src/domain/` no puede importar React, Expo, Zustand, Drizzle ni otras capas.
 - `src/app/`, `src/ui/` y `src/features/*/ui/` no pueden importar la base de datos (`@/db`, `expo-sqlite`, `drizzle-orm`).
 
-`src/state/preferences.ts` sí usa `expo-sqlite/kv-store`: es almacenamiento clave-valor para ajustes, no la base de datos de entrenamientos (que llega en M2).
+`src/state/preferences.ts` sí usa `expo-sqlite/kv-store`: es almacenamiento clave-valor para ajustes (acento y unidad de peso), no la base de datos de entrenamientos.
+
+## Base de datos
+
+- **Esquema:** `src/db/schema.ts`, con las tablas `exercises`, `workout_sessions`, `workout_exercises` y `sets` (propuesta, sección 3). Las rutinas llegan en M4 y los récords en M5, cada una con su migración.
+- **Restricciones en la base:** CHECK para peso (0 a 1.500 kg), reps, RIR, RPE en pasos de 0,5, tipos de serie y fechas; claves foráneas activas. Un ejercicio usado en un entrenamiento no se puede borrar de verdad, solo marcar con `deleted_at`.
+- **Migraciones:** se generan con `npm run db:generate` en `src/db/migrations/` y se incluyen en la app como texto (`babel-plugin-inline-import` y la extensión `sql` en `metro.config.js`). Las aplica `src/db/migrator.ts` al abrir la app, cada una en su transacción, usando la tabla de control de Drizzle (`__drizzle_migrations`). Nunca se edita una migración ya publicada.
+- **Arranque:** `_layout.tsx` mantiene la pantalla de carga hasta que la base está lista (`useDatabasePreparation`). Si falla, muestra un error con "Reintentar"; nunca borra datos.
+- **Biblioteca incluida:** `src/db/seed/exercise-catalog.ts`, 64 ejercicios con ID estable `system:<slug>`. Se carga en cada arranque sin duplicar ni tocar filas al día, aplica correcciones del catálogo y no revive un ejercicio oculto.
+- **Todo es asíncrono.** La API síncrona de expo-sqlite bloquea la app y en web corta los resultados de más de 255 bytes, así que Drizzle usa el driver `sqlite-proxy` sobre `prepareAsync` / `executeForRawResultAsync`.
+- **Web:** la base se abre después de leer las preferencias. expo-sqlite comparte un worker y, si dos bases se abren a la vez, lo inicia dos veces y la segunda falla.
+- **Pendiente para M3:** las transacciones de `sqlite-proxy` mandan `BEGIN` y `COMMIT` como consultas sueltas; si otra consulta llega en medio, queda dentro. Antes de escribir entrenamientos hay que serializar las escrituras o usar `withExclusiveTransactionAsync`.
 
 ## Tema
 
@@ -58,4 +73,5 @@ La app también se exporta a web (`npx expo export --platform web`), útil para 
 
 - Los tests viven junto al código (`*.test.ts(x)`).
 - `jest.setup.ts` reemplaza el almacén nativo de `expo-sqlite` por uno en memoria.
+- Los repositorios, la biblioteca, el migrador y las restricciones se prueban contra SQLite real (`src/db/testing/test-database.ts`), no contra simulaciones.
 - El dominio tiene cobertura completa de ramas.
