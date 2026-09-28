@@ -1,9 +1,7 @@
-
 ---
-
 name: gym-domain
 description: Domain knowledge and business rules for the gym workout tracking application. Use when implementing exercises, routines, sets, reps, RIR, RPE, volume, PRs, progression, body metrics or fitness-related data models.
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # GYM DOMAIN SKILL
 

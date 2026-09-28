@@ -1,8 +1,7 @@
-
-
+---
 name: database
 description: Database architecture, persistence, offline storage, synchronization, migrations and security for the gym application. Use when implementing schemas, repositories, Supabase, SQLite, synchronization or user data.
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # DATABASE SKILL
 

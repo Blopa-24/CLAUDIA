@@ -1,8 +1,19 @@
 # GYM APP — PROJECT INSTRUCTIONS
 
+## 0. REPOSITORY LAYOUT
+
+This repository holds two independent projects:
+
+* `gym-app/` → the gym application. Sections 1 to 23 below apply to it.
+* `contexto/` and `guias/` → study material for the university course *Gestión Pública Intercultural*. Section 24 applies to it.
+
+Keep them separate: gym app code, config and docs live only inside `gym-app/`. Do not move, rewrite or delete the course material when working on the app.
+
+Project skills live in `.claude/skills/<name>/SKILL.md`.
+
 ## 1. PROJECT
 
-This repository contains a professional mobile application for tracking gym workouts, routines, body weight, measurements, strength progression, personal records and training history.
+This repository contains, in `gym-app/`, a professional mobile application for tracking gym workouts, routines, body weight, measurements, strength progression, personal records and training history.
 
 The application must be treated as a real production product, not as a prototype.
 
@@ -500,3 +511,18 @@ Not:
 "an AI generated demo."
 
 Correctness, speed, clarity and reliability matter more than the number of features.
+
+---
+
+# 24. CURSO GESTIÓN PÚBLICA INTERCULTURAL
+
+Material del curso **Gestión Pública Intercultural** (Administración Pública, Universidad Católica de Temuco).
+
+El material base está en [`contexto/`](contexto/README.md): las clases 1, 2 y 4 y las lecturas de Walsh (interculturalidad crítica) y Lahera (políticas públicas), convertidas a Markdown. Empieza por `contexto/README.md`, que tiene el índice y el calendario de evaluaciones. Las guías de estudio y el simulador están en `guias/`.
+
+Al trabajar con este material:
+
+- Responde en español.
+- Basa las respuestas en los documentos de `contexto/`. Cita el archivo y la sección, y distingue lo que dice el material de lo que aportas tú.
+- Para trabajos del curso (pruebas, infografía, ensayo), conecta los conceptos de las lecturas (por ejemplo, interculturalidad funcional frente a crítica, o el ciclo de políticas públicas) con los casos de las clases (Comisión para la Paz y el Entendimiento, Padre Las Casas, Hospital Intercultural de Nueva Imperial).
+- Cuando lleguen documentos nuevos, conviértelos con la skill `markitdown` y agrégalos a `contexto/`, actualizando el índice.
