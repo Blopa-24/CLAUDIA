@@ -15,7 +15,7 @@ const DB_IMPORTS = [
 module.exports = defineConfig([
   expoConfig,
   prettierConfig,
-  { ignores: ["dist/*", ".expo/*", "coverage/*"] },
+  { ignores: ["dist/*", ".expo/*", "coverage/*", "src/db/migrations/*"] },
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "error",

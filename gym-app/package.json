@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo-google-fonts/barlow-semi-condensed": "^0.4.1",
     "@expo/ui": "~57.0.20",
+    "drizzle-orm": "^0.45.3",
     "expo": "~57.0.25",
     "expo-constants": "~57.0.19",
     "expo-device": "~57.0.2",
@@ -36,8 +37,12 @@
   "devDependencies": {
     "@react-native/jest-preset": "^0.86.3",
     "@testing-library/react-native": "^14.0.1",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
+    "babel-plugin-inline-import": "^3.0.0",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
     "eslint-config-prettier": "^10.1.8",
@@ -58,7 +63,8 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "db:generate": "drizzle-kit generate"
   },
   "private": true,
   "jest": {
