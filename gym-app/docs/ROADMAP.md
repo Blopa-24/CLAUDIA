@@ -20,7 +20,8 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 
 - **Inicio:** "Empezar entrenamiento", o "Continuar" con el tiempo y las series si quedó uno abierto.
 - **Entrenamiento activo** (`/workout`): cronómetro sin pausas, pausar y reanudar, agregar ejercicios desde la biblioteca, rendimiento anterior de cada uno, series con peso, reps y RIR (o reps, segundos o metros según el ejercicio) y marca de calentamiento. La próxima serie viene rellena con la anterior: repetirla es un toque. Tocar una serie la edita o la borra.
-- **Descanso:** 90 s tras cada serie, con −15, +15, pausa, saltar y vibración al terminar.
+- **Descanso:** tras cada serie, con −15, +15, pausa, saltar, vibración al terminar y duraciones a un toque (1:00, 1:30, 2:00, 3:00). La app recuerda el último descanso elegido en cada ejercicio. En Perfil se elige el descanso de siempre (0:30 a 5:00) y si empieza solo o queda listo para iniciarlo.
+- **Un ejercicio a la vez** (pedido tras la primera prueba): "Terminar ejercicio" lo pliega en una línea con sus series y su mejor serie; tocarla lo reabre. Queda guardado (`workout_exercises.completed_at`, migración 0002).
 - **Terminar:** confirmación y resumen con duración, ejercicios, series, volumen y récords. Sin series, se ofrece descartar.
 - **Historial:** lista de entrenamientos terminados y detalle de cada uno.
 - **Recuperación:** todo se guarda al instante; tras cerrar la app, el entrenamiento abierto sigue ahí.
@@ -34,7 +35,6 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 2. Creador de rutinas: ejercicios en orden, series y reps objetivo, descanso por ejercicio.
 3. Empezar un entrenamiento desde una rutina, copiando su nombre (_snapshot_).
 4. Superseries (A1, A2) en rutinas y en el entrenamiento activo.
-5. Descanso por defecto configurable en Perfil.
 
 ## Hecho después de M2
 

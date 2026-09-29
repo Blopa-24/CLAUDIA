@@ -79,10 +79,14 @@ planned / active / paused ─abandon→ abandoned
 
 ## Descanso (`rest-timer.ts`)
 
-- 90 s por defecto, con ajustes de ±15 s que nunca bajan de cero.
+- 90 s por defecto, con ajustes de ±15 s. La duración queda entre 0 y 15 minutos.
+- Puede quedar **listo** sin correr (si en Perfil se apaga el inicio automático); no avanza hasta iniciarlo.
+- El descanso de un ejercicio es el último elegido para él; si no hay, el de siempre (Perfil).
 - Se guarda la hora de término, no los segundos restantes: sigue exacto aunque la pantalla no se actualice.
 
 ## Resumen de un entrenamiento (`workout.ts`)
+
+- **Línea de un ejercicio terminado** (`summarySet`): la serie de trabajo más pesada en los de peso (a igual peso, la de más reps); en el resto, la última de trabajo.
 
 - **Duración:** tiempo activo, sin las pausas.
 - **Series:** las de trabajo; el calentamiento no cuenta.

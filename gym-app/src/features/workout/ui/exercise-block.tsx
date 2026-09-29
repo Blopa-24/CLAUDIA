@@ -4,8 +4,8 @@ import { Pressable, View } from "react-native";
 
 import type { SetDraft } from "@/domain/set-input";
 import type { WeightUnit } from "@/domain/units";
-import { trackingOf, type WorkoutExercise, type WorkoutSet } from "@/domain/workout";
-import { AppText, ConfirmDialog } from "@/ui/components";
+import { summarySet, trackingOf, type WorkoutExercise, type WorkoutSet } from "@/domain/workout";
+import { AppButton, AppText, ConfirmDialog } from "@/ui/components";
 import { useTheme } from "@/ui/theme";
 
 import { draftFromSet, nextDraft } from "../draft";
@@ -23,9 +23,68 @@ export interface ExerciseBlockProps {
   onEdit: (setId: string, draft: SetDraft) => Promise<ActionOutcome>;
   onDelete: (setId: string) => Promise<ActionOutcome>;
   onRemove: () => void;
+  /** Terminar (true) lo pliega en una línea; reabrir (false) lo vuelve a mostrar completo. */
+  onSetFinished: (finished: boolean) => void;
 }
 
-export function ExerciseBlock({
+/**
+ * Un ejercicio del entrenamiento. Abierto mientras se hace; al terminarlo queda plegado en una
+ * línea para que la pantalla muestre solo el ejercicio actual. Tocar la línea lo reabre.
+ */
+export function ExerciseBlock(props: ExerciseBlockProps) {
+  return props.entry.completedAt !== null ? (
+    <FinishedExercise {...props} />
+  ) : (
+    <OpenExercise {...props} />
+  );
+}
+
+function useSetDescriber(entry: WorkoutExercise, unit: WeightUnit, language: string) {
+  const { t } = useTranslation();
+  const tracking = trackingOf(entry.exercise);
+  const labels: SetLabels = {
+    rir: t("workout.rir"),
+    seconds: t("workout.secondsUnit"),
+    meters: t("workout.metersUnit"),
+  };
+  return (set: WorkoutSet) => formatSet(set, tracking, unit, language, labels);
+}
+
+function FinishedExercise({ entry, unit, language, onSetFinished }: ExerciseBlockProps) {
+  const { t } = useTranslation();
+  const { colors, spacing } = useTheme();
+  const describe = useSetDescriber(entry, unit, language);
+  const top = summarySet(entry);
+  const summary = t("workout.exerciseSummary", {
+    count: entry.sets.length,
+    best: top ? describe(top) : "—",
+  });
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t("workout.reopenExercise", { name: entry.nameSnapshot, summary })}
+      onPress={() => onSetFinished(false)}
+      style={({ pressed }) => ({
+        minHeight: 56,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.md,
+        paddingVertical: spacing.md,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <AppText style={{ color: colors.success, fontWeight: "700", fontSize: 18 }}>✓</AppText>
+      <View style={{ flex: 1, gap: 2 }}>
+        <AppText style={{ fontWeight: "600" }}>{entry.nameSnapshot}</AppText>
+        <AppText variant="small" tone="secondary">
+          {summary}
+        </AppText>
+      </View>
+    </Pressable>
+  );
+}
+
+function OpenExercise({
   entry,
   previous,
   unit,
@@ -34,18 +93,14 @@ export function ExerciseBlock({
   onEdit,
   onDelete,
   onRemove,
+  onSetFinished,
 }: ExerciseBlockProps) {
   const { t } = useTranslation();
   const { colors, spacing, fontFamily } = useTheme();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<"remove" | "deleteSet" | null>(null);
   const tracking = trackingOf(entry.exercise);
-  const labels: SetLabels = {
-    rir: t("workout.rir"),
-    seconds: t("workout.secondsUnit"),
-    meters: t("workout.metersUnit"),
-  };
-  const describe = (set: WorkoutSet) => formatSet(set, tracking, unit, language, labels);
+  const describe = useSetDescriber(entry, unit, language);
   const editing = entry.sets.find((set) => set.id === editingId);
 
   return (
@@ -132,6 +187,13 @@ export function ExerciseBlock({
             initial={nextDraft(entry, previous, unit, language)}
             onSubmit={onComplete}
           />
+          {entry.sets.length > 0 ? (
+            <AppButton
+              variant="secondary"
+              label={t("workout.finishExercise")}
+              onPress={() => onSetFinished(true)}
+            />
+          ) : null}
         </View>
       )}
 

@@ -6,6 +6,7 @@ import { AppText } from "@/ui/components";
 import { useTheme } from "@/ui/theme";
 
 import { AccentPicker } from "./accent-picker";
+import { RestSettings } from "./rest-settings";
 import { WeightUnitPicker } from "./weight-unit-picker";
 
 export function ProfileScreen() {
@@ -44,6 +45,12 @@ export function ProfileScreen() {
           </AppText>
         </View>
         <WeightUnitPicker value={weightUnit} onChange={setWeightUnit} />
+      </View>
+      <View style={{ gap: spacing.md }}>
+        <AppText variant="title" accessibilityRole="header">
+          {t("profile.rest")}
+        </AppText>
+        <RestSettings />
       </View>
       <AppText variant="small" tone="muted">
         {t("profile.moreSoon")}

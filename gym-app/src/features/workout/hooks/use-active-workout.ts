@@ -14,6 +14,7 @@ import {
   getWorkout,
   previousPerformance,
   removeExercise,
+  setExerciseFinished,
   type WorkoutError,
 } from "../services/workout-service";
 
@@ -99,6 +100,10 @@ export function useActiveWorkout() {
     deleteSet: (setId: string) => run(() => withDatabase((db) => deleteSet(db, deviceDeps, setId))),
     removeExercise: (workoutExerciseId: string) =>
       run(() => withDatabase((db) => removeExercise(db, deviceDeps, workoutExerciseId))),
+    setExerciseFinished: (workoutExerciseId: string, finished: boolean) =>
+      run(() =>
+        withDatabase((db) => setExerciseFinished(db, deviceDeps, workoutExerciseId, finished)),
+      ),
     changeStatus: (event: "pause" | "resume" | "finish" | "abandon") =>
       workoutId === null
         ? Promise.resolve<ActionOutcome>({ ok: false })

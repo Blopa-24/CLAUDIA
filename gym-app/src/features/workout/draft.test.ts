@@ -24,6 +24,7 @@ const entry = (sets: WorkoutSet[]): WorkoutExercise => ({
   exercise: { id: "bench" } as Exercise,
   nameSnapshot: "Press",
   position: 0,
+  completedAt: null,
   sets,
 });
 

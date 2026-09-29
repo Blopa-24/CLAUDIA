@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { activeDurationMs } from "@/domain/workout-session";
 import type { Workout, WorkoutSet } from "@/domain/workout";
-import { usePreferences } from "@/state/preferences";
+import { restSecondsFor, usePreferences } from "@/state/preferences";
 import { AppButton, AppText, ConfirmDialog, EmptyState, Screen } from "@/ui/components";
 import { useNow } from "@/ui/hooks/use-now";
 import { useTheme } from "@/ui/theme";
@@ -87,6 +87,10 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
   const insets = useSafeAreaInsets();
   const unit = usePreferences((s) => s.weightUnit);
   const startRest = useRestTimer((s) => s.start);
+  const prepareRest = useRestTimer((s) => s.prepare);
+  const restAutoStart = usePreferences((s) => s.restAutoStart);
+  const restSeconds = usePreferences((s) => s.restSeconds);
+  const restByExercise = usePreferences((s) => s.restByExercise);
   const skipRest = useRestTimer((s) => s.skip);
   const hasTimer = useRestTimer((s) => s.timer !== null);
   const [dialog, setDialog] = useState<"finish" | "discard" | null>(null);
@@ -95,12 +99,18 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
   const elapsed = formatElapsed(activeDurationMs(workout.timing, now));
   const totalSets = workout.exercises.reduce((sum, entry) => sum + entry.sets.length, 0);
 
+  /** Guarda la serie y deja corriendo (o preparado) el descanso de ese ejercicio. */
   const complete = async (
     workoutExerciseId: string,
+    exerciseId: string,
     draft: Parameters<typeof actions.completeSet>[1],
   ) => {
     const outcome = await actions.completeSet(workoutExerciseId, draft);
-    if (outcome.ok) startRest();
+    if (outcome.ok) {
+      const seconds = restSecondsFor({ restSeconds, restByExercise }, exerciseId);
+      if (restAutoStart) startRest(seconds, exerciseId);
+      else prepareRest(seconds, exerciseId);
+    }
     return outcome;
   };
 
@@ -210,10 +220,11 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
                 previous={previous.get(entry.exercise.id)}
                 unit={unit}
                 language={i18n.language}
-                onComplete={(draft) => complete(entry.id, draft)}
+                onComplete={(draft) => complete(entry.id, entry.exercise.id, draft)}
                 onEdit={actions.editSet}
                 onDelete={actions.deleteSet}
                 onRemove={() => void actions.removeExercise(entry.id)}
+                onSetFinished={(finished) => void actions.setExerciseFinished(entry.id, finished)}
               />
             </View>
           ))
