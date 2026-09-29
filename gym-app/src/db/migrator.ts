@@ -46,11 +46,23 @@ export async function runMigrations(db: AppDatabase, bundle: MigrationBundle): P
       .map((statement) => statement.trim())
       .filter(Boolean);
 
-    await db.transaction(async (tx) => {
-      for (const statement of statements) await tx.run(sql.raw(statement));
-      await tx.run(
-        sql`INSERT INTO ${sql.raw(MIGRATIONS_TABLE)} (hash, created_at) VALUES (${entry.tag}, ${entry.when})`,
-      );
-    });
+    // Para rehacer una tabla (lo único que permite SQLite para cambiar un CHECK), las claves
+    // foráneas se apagan fuera de la transacción y, antes de confirmar, se revisa que ninguna
+    // quedó rota (https://www.sqlite.org/lang_altertable.html, sección 7).
+    await db.run(sql.raw("PRAGMA foreign_keys = OFF"));
+    try {
+      await db.transaction(async (tx) => {
+        for (const statement of statements) await tx.run(sql.raw(statement));
+        const broken = await tx.values(sql.raw("PRAGMA foreign_key_check"));
+        if (broken.length > 0) {
+          throw new Error(`La migración ${entry.tag} dejó ${broken.length} claves foráneas rotas`);
+        }
+        await tx.run(
+          sql`INSERT INTO ${sql.raw(MIGRATIONS_TABLE)} (hash, created_at) VALUES (${entry.tag}, ${entry.when})`,
+        );
+      });
+    } finally {
+      await db.run(sql.raw("PRAGMA foreign_keys = ON"));
+    }
   }
 }

@@ -73,6 +73,75 @@ describe("runMigrations", () => {
     expect(applied(test)).toEqual([]);
   });
 
+  it("actualiza una base con datos a la versión nueva sin perder nada (teléfono que ya tenía M2)", async () => {
+    const full = readMigrationBundle();
+    const [first] = full.journal.entries;
+    if (!first) throw new Error("no hay migraciones");
+    await runMigrations(test.db, { ...full, journal: { entries: [first] } });
+
+    const now = 1_000;
+    test.raw
+      .prepare(
+        `INSERT INTO exercises (id, name_es, name_en, is_custom, primary_muscle, equipment,
+           movement_pattern, laterality, tracking_type, created_at, updated_at)
+         VALUES ('e1', 'Press', 'Press', 0, 'chest', 'barbell', 'horizontal_push', 'bilateral',
+           'weight_reps', ?, ?)`,
+      )
+      .run(now, now);
+    test.raw
+      .prepare(
+        "INSERT INTO workout_sessions (id, status, created_at, updated_at) VALUES ('s1', 'planned', ?, ?)",
+      )
+      .run(now, now);
+    test.raw
+      .prepare(
+        `INSERT INTO workout_exercises (id, session_id, exercise_id, exercise_name_snapshot,
+           position, created_at, updated_at) VALUES ('we1', 's1', 'e1', 'Press', 0, ?, ?)`,
+      )
+      .run(now, now);
+
+    await runMigrations(test.db, full);
+
+    expect(test.raw.prepare("SELECT id, load_count FROM exercises").all()).toEqual([
+      { id: "e1", load_count: 1 },
+    ]);
+    expect(test.raw.prepare("SELECT exercise_id FROM workout_exercises").all()).toEqual([
+      { exercise_id: "e1" },
+    ]);
+    // Las claves foráneas quedan activas y siguen protegiendo el historial.
+    expect(test.raw.pragma("foreign_keys", { simple: true })).toBe(1);
+    expect(() => test.raw.prepare("DELETE FROM exercises WHERE id = 'e1'").run()).toThrow(
+      /FOREIGN KEY/,
+    );
+    // Los valores nuevos se aceptan.
+    expect(() =>
+      test.raw
+        .prepare(
+          `INSERT INTO exercises (id, name_es, name_en, is_custom, primary_muscle, equipment,
+             movement_pattern, laterality, tracking_type, load_count, created_at, updated_at)
+           VALUES ('e2', 'Kelso', 'Kelso', 0, 'traps', 'dumbbell', 'isolation', 'bilateral',
+             'weight_reps', 2, ?, ?)`,
+        )
+        .run(now, now),
+    ).not.toThrow();
+  });
+
+  it("rechaza una migración que deja claves foráneas rotas y vuelve a activarlas", async () => {
+    const orphan: MigrationBundle = {
+      journal: { entries: [{ idx: 0, when: 100, tag: "0000_huerfana", breakpoints: true }] },
+      migrations: {
+        m0000: [
+          "CREATE TABLE padre (id integer PRIMARY KEY);",
+          "CREATE TABLE hijo (padre_id integer REFERENCES padre(id));",
+          "INSERT INTO hijo VALUES (99);",
+        ].join("\n--> statement-breakpoint\n"),
+      },
+    };
+    await expect(runMigrations(test.db, orphan)).rejects.toThrow("claves foráneas rotas");
+    expect(tables(test)).not.toContain("hijo");
+    expect(test.raw.pragma("foreign_keys", { simple: true })).toBe(1);
+  });
+
   it("avisa si falta el SQL de una migración del registro", async () => {
     const missing: MigrationBundle = {
       journal: { entries: [{ idx: 0, when: 100, tag: "0000_falta", breakpoints: true }] },
