@@ -3,16 +3,33 @@
 
 import { and, asc, desc, eq, inArray, isNull, lt, max } from "drizzle-orm";
 
+import { hasTarget, type RoutineTarget } from "@/domain/routine";
 import type { ValidSet } from "@/domain/set-input";
 import type { Workout, WorkoutExercise, WorkoutSet } from "@/domain/workout";
 import type { SessionStatus, SessionTiming } from "@/domain/workout-session";
 
-import type { AppDatabase } from "../database";
+import type { AppDatabase, AppExecutor } from "../database";
 import { exercises, sets, workoutExercises, workoutSessions } from "../schema";
 
 import { toExercise } from "./exercise-repository";
 
 type SetRow = typeof sets.$inferSelect;
+
+/** Objetivo guardado en una fila; null si no fija nada. */
+export function targetFromRow(row: {
+  targetSets: number | null;
+  targetRepsMin: number | null;
+  targetRepsMax: number | null;
+  targetRir: number | null;
+}): RoutineTarget | null {
+  const target: RoutineTarget = {
+    sets: row.targetSets,
+    repsMin: row.targetRepsMin,
+    repsMax: row.targetRepsMax,
+    rir: row.targetRir,
+  };
+  return hasTarget(target) ? target : null;
+}
 
 function toWorkoutSet(row: SetRow): WorkoutSet {
   return {
@@ -33,8 +50,13 @@ function toWorkoutSet(row: SetRow): WorkoutSet {
 const OPEN_STATUSES: SessionStatus[] = ["planned", "active", "paused"];
 
 export async function insertSession(
-  db: AppDatabase,
-  session: { id: string; timing: SessionTiming; now: number },
+  db: AppExecutor,
+  session: {
+    id: string;
+    timing: SessionTiming;
+    now: number;
+    routine?: { id: string; name: string } | null;
+  },
 ): Promise<void> {
   const { timing } = session;
   await db
@@ -46,6 +68,8 @@ export async function insertSession(
       endedAt: timing.endedAt,
       pausedAt: timing.pausedAt,
       pausedMs: timing.pausedMs,
+      routineId: session.routine?.id ?? null,
+      routineNameSnapshot: session.routine?.name ?? null,
       createdAt: session.now,
       updatedAt: session.now,
     })
@@ -125,6 +149,8 @@ export async function loadWorkouts(db: AppDatabase, ids: readonly string[]): Pro
       nameSnapshot: entry.exerciseNameSnapshot,
       position: entry.position,
       completedAt: entry.completedAt,
+      target: targetFromRow(entry),
+      restS: entry.restS,
       sets: setsByEntry.get(entry.id) ?? [],
     });
     entriesBySession.set(entry.sessionId, list);
@@ -135,6 +161,7 @@ export async function loadWorkouts(db: AppDatabase, ids: readonly string[]): Pro
       row.id,
       {
         id: row.id,
+        routineName: row.routineNameSnapshot,
         notes: row.notes,
         timing: {
           status: row.status,
@@ -167,13 +194,15 @@ export async function listCompletedWorkoutIds(db: AppDatabase): Promise<string[]
 }
 
 export async function insertWorkoutExercise(
-  db: AppDatabase,
+  db: AppExecutor,
   entry: {
     id: string;
     sessionId: string;
     exerciseId: string;
     nameSnapshot: string;
     position: number;
+    target?: RoutineTarget | null;
+    restS?: number | null;
     now: number;
   },
 ): Promise<void> {
@@ -185,6 +214,11 @@ export async function insertWorkoutExercise(
       exerciseId: entry.exerciseId,
       exerciseNameSnapshot: entry.nameSnapshot,
       position: entry.position,
+      targetSets: entry.target?.sets ?? null,
+      targetRepsMin: entry.target?.repsMin ?? null,
+      targetRepsMax: entry.target?.repsMax ?? null,
+      targetRir: entry.target?.rir ?? null,
+      restS: entry.restS ?? null,
       createdAt: entry.now,
       updatedAt: entry.now,
     })

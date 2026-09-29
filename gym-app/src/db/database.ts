@@ -17,6 +17,12 @@ export type AppDatabase = SqliteRemoteDatabase<typeof schema>;
 /** Ejecuta una consulta. `get` devuelve una fila (arreglo de valores); el resto, filas. */
 export type SqlRunner = AsyncRemoteCallback;
 
+/** Una transacción abierta con `db.transaction`. */
+export type AppTransaction = Parameters<Parameters<AppDatabase["transaction"]>[0]>[0];
+
+/** La base o una transacción: para funciones que deben poder correr dentro de una. */
+export type AppExecutor = AppDatabase | AppTransaction;
+
 export function createAppDatabase(runner: SqlRunner): AppDatabase {
   return drizzle(runner, { schema });
 }

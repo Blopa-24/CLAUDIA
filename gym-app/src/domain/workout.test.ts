@@ -59,6 +59,7 @@ const pullUps = exercise("pullups", { trackingType: "reps_only" });
 function workout(entries: [Exercise, WorkoutSet[]][]): Workout {
   return {
     id: "w1",
+    routineName: null,
     notes: null,
     timing: {
       status: "completed",
@@ -73,6 +74,8 @@ function workout(entries: [Exercise, WorkoutSet[]][]): Workout {
       nameSnapshot: ex.name.es,
       position,
       completedAt: null,
+      target: null,
+      restS: null,
       sets,
     })),
   };
@@ -169,6 +172,8 @@ describe("summarySet", () => {
     nameSnapshot: ex.id,
     position: 0,
     completedAt: null,
+    target: null,
+    restS: null,
     sets,
   });
 

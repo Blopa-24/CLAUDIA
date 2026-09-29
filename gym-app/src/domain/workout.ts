@@ -2,6 +2,7 @@
 // → series. Solo tipos y cálculos; la base de datos vive en src/db.
 
 import type { Exercise } from "./exercise";
+import type { RoutineTarget } from "./routine";
 import { evaluateSessionRecords, type ExerciseBests, type NewRecord } from "./personal-records";
 import type { ExerciseTracking, SetPerformance, SetType } from "./types";
 import type { WeightUnit } from "./units";
@@ -31,11 +32,17 @@ export interface WorkoutExercise {
   position: number;
   /** Cuándo se dio por terminado; null mientras se está haciendo. Solo ordena la pantalla. */
   completedAt: number | null;
+  /** Objetivo copiado de la rutina; null en un entrenamiento libre o si la rutina no fijaba nada. */
+  target: RoutineTarget | null;
+  /** Descanso copiado de la rutina; null usa el recordado o el de siempre. */
+  restS: number | null;
   sets: WorkoutSet[];
 }
 
 export interface Workout {
   id: string;
+  /** Nombre de la rutina al empezar; null en un entrenamiento libre. */
+  routineName: string | null;
   timing: SessionTiming;
   notes: string | null;
   exercises: WorkoutExercise[];

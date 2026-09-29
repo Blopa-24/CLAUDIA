@@ -143,6 +143,13 @@ export const workoutExercises = sqliteTable(
     supersetGroup: integer("superset_group"),
     /** Cuándo se terminó el ejercicio en el entrenamiento; null mientras se está haciendo. */
     completedAt: integer("completed_at"),
+    // Objetivos copiados de la rutina al empezar (null en un entrenamiento libre). Sin CHECK para
+    // poder agregarlos con ALTER TABLE; los valida el dominio (validateTarget).
+    targetSets: integer("target_sets"),
+    targetRepsMin: integer("target_reps_min"),
+    targetRepsMax: integer("target_reps_max"),
+    targetRir: integer("target_rir"),
+    restS: integer("rest_s"),
     notes: text("notes"),
     ...timestamps,
   },
@@ -201,6 +208,60 @@ export const sets = sqliteTable(
     check("sets_duration", sql`${table.durationS} IS NULL OR ${table.durationS} >= 0`),
     check("sets_distance", sql`${table.distanceM} IS NULL OR ${table.distanceM} >= 0`),
     check("sets_rest", sql`${table.restS} IS NULL OR ${table.restS} >= 0`),
+  ],
+);
+
+/** Plantillas de entrenamiento. Borrarlas es lógico; los entrenamientos guardan su nombre aparte. */
+export const routines = sqliteTable(
+  "routines",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    notes: text("notes"),
+    position: integer("position").notNull(),
+    ...timestamps,
+  },
+  (table) => [check("routines_name", sql`length(trim(${table.name})) > 0`)],
+);
+
+export const routineExercises = sqliteTable(
+  "routine_exercises",
+  {
+    id: text("id").primaryKey(),
+    routineId: text("routine_id")
+      .notNull()
+      .references(() => routines.id, { onDelete: "cascade" }),
+    exerciseId: text("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "restrict" }),
+    position: integer("position").notNull(),
+    supersetGroup: integer("superset_group"),
+    targetSets: integer("target_sets"),
+    targetRepsMin: integer("target_reps_min"),
+    targetRepsMax: integer("target_reps_max"),
+    targetRir: integer("target_rir"),
+    restS: integer("rest_s"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (table) => [
+    index("routine_exercises_routine_id").on(table.routineId),
+    check(
+      "routine_exercises_sets",
+      sql`${table.targetSets} IS NULL OR (${table.targetSets} >= 1 AND ${table.targetSets} <= 20)`,
+    ),
+    check(
+      "routine_exercises_reps",
+      sql`(${table.targetRepsMin} IS NULL AND ${table.targetRepsMax} IS NULL) OR (${table.targetRepsMin} >= 1 AND ${table.targetRepsMax} >= ${table.targetRepsMin} AND ${table.targetRepsMax} <= 100)`,
+    ),
+    check(
+      "routine_exercises_rir",
+      sql`${table.targetRir} IS NULL OR (${table.targetRir} >= 0 AND ${table.targetRir} <= 10)`,
+    ),
+    check(
+      "routine_exercises_rest",
+      sql`${table.restS} IS NULL OR (${table.restS} >= 0 AND ${table.restS} <= 900)`,
+    ),
   ],
 );
 

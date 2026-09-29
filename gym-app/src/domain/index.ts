@@ -2,6 +2,7 @@ export * from "./exercise";
 export * from "./one-rep-max";
 export * from "./personal-records";
 export * from "./rest-timer";
+export * from "./routine";
 export * from "./result";
 export * from "./set-input";
 export * from "./types";

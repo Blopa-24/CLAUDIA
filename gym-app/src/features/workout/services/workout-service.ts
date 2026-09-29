@@ -3,6 +3,7 @@
 
 import type { AppDatabase } from "@/db/database";
 import { findExerciseById } from "@/db/repositories/exercise-repository";
+import { findRoutine } from "@/db/repositories/routine-repository";
 import {
   exerciseHistory,
   findOpenWorkoutId,
@@ -22,6 +23,7 @@ import {
   updateSet,
 } from "@/db/repositories/workout-repository";
 import type { Exercise } from "@/domain/exercise";
+import { hasTarget } from "@/domain/routine";
 import { err, ok, type Result } from "@/domain/result";
 import { type SetDraft, type SetInputError, validateSet } from "@/domain/set-input";
 import {
@@ -259,4 +261,47 @@ export async function setExerciseFinished(
   const now = deps.now();
   await setWorkoutExerciseCompletion(db, workoutExerciseId, finished ? now : null, now);
   return ok(null);
+}
+
+/**
+ * Empieza un entrenamiento con los ejercicios de una rutina ya cargados, copiando su nombre, sus
+ * objetivos y su descanso (skill workout-engine, "START WORKOUT"). Si ya hay uno abierto, lo
+ * retoma sin tocarlo: nunca hay dos a la vez.
+ */
+export async function startWorkoutFromRoutine(
+  db: AppDatabase,
+  deps: ServiceDeps,
+  routineId: string,
+  nameOf: (exercise: Exercise) => string,
+): Promise<Result<{ workoutId: string; resumed: boolean }, WorkoutError>> {
+  const open = await findOpenWorkoutId(db);
+  if (open !== null) return ok({ workoutId: open, resumed: true });
+  const routine = await findRoutine(db, routineId);
+  if (routine === null) return err({ code: "not_found" });
+
+  const now = deps.now();
+  const started = transition(plannedSession(), "start", now);
+  if (!started.ok) throw new Error("No se pudo iniciar el entrenamiento");
+  const workoutId = deps.newId();
+  await db.transaction(async (tx) => {
+    await insertSession(tx, {
+      id: workoutId,
+      timing: started.value,
+      now,
+      routine: { id: routine.id, name: routine.name },
+    });
+    for (const item of routine.exercises) {
+      await insertWorkoutExercise(tx, {
+        id: deps.newId(),
+        sessionId: workoutId,
+        exerciseId: item.exercise.id,
+        nameSnapshot: nameOf(item.exercise),
+        position: item.position,
+        target: hasTarget(item.target) ? item.target : null,
+        restS: item.restS,
+        now,
+      });
+    }
+  });
+  return ok({ workoutId, resumed: false });
 }

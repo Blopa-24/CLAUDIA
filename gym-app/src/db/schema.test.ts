@@ -72,7 +72,7 @@ describe("esquema de SQLite", () => {
   });
   afterEach(() => test.close());
 
-  it("crea las tablas de M2", () => {
+  it("crea todas las tablas", () => {
     const tables = test.raw
       .prepare(
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE '\\_%' ESCAPE '\\' AND name NOT LIKE 'sqlite%'",
@@ -80,7 +80,14 @@ describe("esquema de SQLite", () => {
       .all()
       .map((row) => (row as { name: string }).name)
       .sort();
-    expect(tables).toEqual(["exercises", "sets", "workout_exercises", "workout_sessions"]);
+    expect(tables).toEqual([
+      "exercises",
+      "routine_exercises",
+      "routines",
+      "sets",
+      "workout_exercises",
+      "workout_sessions",
+    ]);
   });
 
   it("acepta una serie normal: 80 kg × 8 con RIR 2", () => {

@@ -25,6 +25,8 @@ const entry = (sets: WorkoutSet[]): WorkoutExercise => ({
   nameSnapshot: "Press",
   position: 0,
   completedAt: null,
+  target: null,
+  restS: null,
   sets,
 });
 

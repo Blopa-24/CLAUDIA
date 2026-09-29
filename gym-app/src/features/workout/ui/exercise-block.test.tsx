@@ -34,6 +34,8 @@ const entry = (sets: WorkoutSet[], completedAt: number | null): WorkoutExercise 
   nameSnapshot: "Press de banca",
   position: 0,
   completedAt,
+  target: null,
+  restS: null,
   sets,
 });
 
