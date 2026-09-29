@@ -62,6 +62,8 @@ ESLint impone dos reglas (`eslint.config.js`):
 - **Estado efímero:** solo el temporizador de descanso vive en memoria (Zustand, `rest-timer-store.ts`), guardado como hora de término.
 - **Formato:** `features/workout/format.ts` (pesos, series, tiempos) y `draft.ts` (qué aparece escrito en la próxima serie).
 - **Navegación:** `/workout`, `/workout/add-exercise` (modal), `/workout/summary/[id]` y `/history/[id]`, fuera de las pestañas. Para volver a Inicio se usa `router.dismissTo("/")`, que no apila copias. Las rutas tipadas están apagadas (ROADMAP, "Decisiones tomadas").
+- **Rutinas** (`features/routines`): la rutina es una plantilla (`routines`, `routine_exercises`); editarla reemplaza sus ejercicios en una transacción. El editor trabaja sobre un borrador en memoria (`routine-draft-store.ts`) que preparan Inicio ("Nueva rutina") o la pantalla de la rutina ("Editar"). Empezar desde una rutina copia nombre, ejercicios, objetivos y descanso en `workout_sessions` y `workout_exercises`.
+- **Ejercicio en curso:** `current-exercise.ts` elige el enfocado (`workout-focus-store.ts`) o el primero sin terminar; los demás sin terminar se ven como pendientes.
 - **Confirmaciones** con `ConfirmDialog` (`src/ui/components`), no con `Alert`, que no funciona en web ni sigue el tema.
 
 ## Tema

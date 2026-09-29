@@ -11,7 +11,7 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 | Extra: colores de acento     | ✅ Terminado | Azul, violeta, cian y rosa, elegibles en Perfil y guardados en el teléfono                                   |
 | M2. Persistencia local       | ✅ Terminado | SQLite con migraciones, biblioteca de ejercicios, pestaña Ejercicios con búsqueda y filtro, unidad kg/lb     |
 | M3. Entrenamiento activo     | ✅ Terminado | Registrar entrenamientos: series en un toque, rendimiento anterior, descanso, resumen con récords, historial |
-| **M4. Rutinas y ejercicios** | ⏭️ Siguiente | Ejercicios personalizados, creador de rutinas, superseries                                                   |
+| **M4. Rutinas y ejercicios** | 🔄 En curso  | Ejercicios personalizados, creador de rutinas, superseries                                                   |
 | M5. Historial y progreso     | Pendiente    | Récords, gráficos, peso corporal y medidas                                                                   |
 | M6. Cuenta y sincronización  | Pendiente    | Supabase, RLS, cola de sincronización                                                                        |
 | M7. Pulido y lanzamiento     | Pendiente    | Exportar/importar, recordatorios, fotos, EAS                                                                 |
@@ -29,12 +29,23 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 
 **Queda pendiente de M3:** el flujo E2E con Maestro. Necesita un emulador o un teléfono conectado por cable al computador; se hace cuando se prepare la primera build de desarrollo (M7 o antes).
 
-## Siguiente: M4, rutinas y ejercicios
+## M4, rutinas y ejercicios (en curso)
+
+**Hecho: rutinas.**
+
+- Inicio muestra "Tus rutinas", "Nueva rutina" y "Entrenamiento libre".
+- Editor de rutinas: nombre, ejercicios en orden (subir, bajar, quitar), series, reps fijas o rango, RIR y descanso por ejercicio. Todo se valida antes de guardar y se guarda junto; salir con cambios pide confirmar.
+- Pantalla de la rutina: ejercicios con sus objetivos, "Empezar entrenamiento", "Editar" y borrar (con confirmación). Si hay un entrenamiento abierto, ofrece continuarlo.
+- Empezar desde una rutina copia su nombre, los ejercicios, los objetivos y el descanso al entrenamiento (migración 0003). Editar o borrar la rutina después no cambia lo ya entrenado.
+- En el entrenamiento: el nombre de la rutina arriba, "Objetivo: 4 × 6–8 · RIR 2" en el ejercicio en curso y los siguientes como líneas pendientes; al terminar uno, se abre el siguiente.
+- Prioridad del descanso: el elegido en la barra durante el entrenamiento, luego el de la rutina, luego el recordado para el ejercicio y al final el de Perfil.
+- El historial y el resumen muestran el nombre de la rutina.
+
+**Falta:**
 
 1. Ejercicios personalizados (crear, editar, ocultar), con los tipos de registro que faltan (ver abajo).
-2. Creador de rutinas: ejercicios en orden, series y reps objetivo, descanso por ejercicio.
-3. Empezar un entrenamiento desde una rutina, copiando su nombre (_snapshot_).
-4. Superseries (A1, A2) en rutinas y en el entrenamiento activo.
+2. Superseries (A1, A2) en rutinas y en el entrenamiento activo.
+3. Reordenar las rutinas en Inicio.
 
 ## Hecho después de M2
 

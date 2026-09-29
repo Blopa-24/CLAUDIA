@@ -77,6 +77,13 @@ planned / active / paused ─abandon→ abandoned
 - Se acepta coma o punto decimal ("82,5" y "82.5").
 - Cada tipo de ejercicio pide solo sus campos: peso y reps, solo reps, tiempo, o distancia (con tiempo opcional). Lo que no aplica se guarda vacío.
 
+## Rutinas (`routine.ts`)
+
+- Nombre obligatorio, hasta 60 caracteres, sin espacios sobrantes.
+- Objetivos opcionales: series de 1 a 20, reps de 1 a 100 (un número es fijo; dos, un rango con el máximo ≥ mínimo) y RIR de 0 a 10. Una rutina puede ser solo una lista de ejercicios.
+- Descanso por ejercicio opcional, de 0 a 15 minutos.
+- Hasta 40 ejercicios por rutina.
+
 ## Descanso (`rest-timer.ts`)
 
 - 90 s por defecto, con ajustes de ±15 s. La duración queda entre 0 y 15 minutos.
