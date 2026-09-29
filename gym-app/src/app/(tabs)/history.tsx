@@ -1,5 +1,5 @@
-import { SectionPlaceholder } from "@/ui/components";
+import { HistoryScreen } from "@/features/history/ui/history-screen";
 
-export default function HistoryScreen() {
-  return <SectionPlaceholder section="history" />;
+export default function HistoryRoute() {
+  return <HistoryScreen />;
 }

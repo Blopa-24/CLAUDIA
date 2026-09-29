@@ -7,7 +7,7 @@ import { Screen } from "./screen";
 import { Icon, type IconName } from "./tab-icon";
 
 /** Secciones que aún no tienen contenido real. */
-export type PlaceholderSection = Exclude<IconName, "profile" | "exercises">;
+export type PlaceholderSection = Extract<IconName, "progress">;
 
 /** Pantalla de una sección que todavía no existe, marcada como tal (CLAUDE.md, sección 19). */
 

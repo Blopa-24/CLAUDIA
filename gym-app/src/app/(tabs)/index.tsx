@@ -1,5 +1,5 @@
-import { SectionPlaceholder } from "@/ui/components";
+import { HomeScreen } from "@/features/home/ui/home-screen";
 
-export default function HomeScreen() {
-  return <SectionPlaceholder section="home" />;
+export default function HomeRoute() {
+  return <HomeScreen />;
 }

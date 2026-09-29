@@ -14,7 +14,10 @@ import { useTheme } from "@/ui/theme";
 
 import { useExerciseLibrary } from "../hooks/use-exercise-library";
 
-export function ExercisesScreen() {
+/** Al elegir un ejercicio (por ejemplo, para agregarlo al entrenamiento). Sin esto, la lista solo se consulta. */
+export type ExerciseSelectHandler = (exercise: Exercise, name: string) => void;
+
+export function ExercisesScreen({ onSelect }: { onSelect?: ExerciseSelectHandler } = {}) {
   const state = useExerciseLibrary();
   const { t } = useTranslation();
 
@@ -48,10 +51,16 @@ export function ExercisesScreen() {
     );
   }
 
-  return <ExerciseBrowser exercises={state.exercises} />;
+  return <ExerciseBrowser exercises={state.exercises} onSelect={onSelect} />;
 }
 
-function ExerciseBrowser({ exercises }: { exercises: Exercise[] }) {
+function ExerciseBrowser({
+  exercises,
+  onSelect,
+}: {
+  exercises: Exercise[];
+  onSelect?: ExerciseSelectHandler;
+}) {
   const { t, i18n } = useTranslation();
   const { colors, spacing } = useTheme();
   const language: ExerciseLanguage = i18n.language === "en" ? "en" : "es";
@@ -80,7 +89,9 @@ function ExerciseBrowser({ exercises }: { exercises: Exercise[] }) {
       <FlatList
         data={results}
         keyExtractor={(exercise) => exercise.id}
-        renderItem={({ item }) => <ExerciseRow exercise={item} language={language} />}
+        renderItem={({ item }) => (
+          <ExerciseRow exercise={item} language={language} onSelect={onSelect} />
+        )}
         ItemSeparatorComponent={() => (
           <View style={{ height: 1, backgroundColor: colors.border }} />
         )}
@@ -241,16 +252,40 @@ function FilterChip({
   );
 }
 
-function ExerciseRow({ exercise, language }: { exercise: Exercise; language: ExerciseLanguage }) {
+function ExerciseRow({
+  exercise,
+  language,
+  onSelect,
+}: {
+  exercise: Exercise;
+  language: ExerciseLanguage;
+  onSelect?: ExerciseSelectHandler;
+}) {
   const { t } = useTranslation();
   const { spacing } = useTheme();
   const details = [t(`muscles.${exercise.primaryMuscle}`), t(`equipment.${exercise.equipment}`)];
-  return (
-    <View style={{ paddingVertical: spacing.md, gap: spacing.xs }}>
-      <AppText style={{ fontWeight: "600" }}>{exercise.name[language]}</AppText>
+  const name = exercise.name[language];
+  const content = (
+    <>
+      <AppText style={{ fontWeight: "600" }}>{name}</AppText>
       <AppText variant="small" tone="secondary">
         {details.join(" · ")}
       </AppText>
-    </View>
+    </>
+  );
+  const style = { paddingVertical: spacing.md, gap: spacing.xs, minHeight: 48 };
+  // Solo es un botón cuando elegir hace algo (CLAUDE.md, sección 19: nada de botones falsos).
+  return onSelect ? (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={name}
+      accessibilityHint={details.join(", ")}
+      onPress={() => onSelect(exercise, name)}
+      style={({ pressed }) => ({ ...style, opacity: pressed ? 0.6 : 1 })}
+    >
+      {content}
+    </Pressable>
+  ) : (
+    <View style={style}>{content}</View>
   );
 }
