@@ -4,25 +4,37 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 
 ## Hitos
 
-| Hito                         | Estado       | Qué deja                                                                                                    |
-| ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------- |
-| M0. Base                     | ✅ Terminado | Proyecto Expo SDK 57, TypeScript estricto, ESLint con reglas de capas, Jest, CI, tema, idiomas y 5 pestañas |
-| M1. Motor de dominio         | ✅ Terminado | Conversión kg/lb, volumen, 1RM, récords y estados del entrenamiento, con 100 % de cobertura de ramas        |
-| Extra: colores de acento     | ✅ Terminado | Azul, violeta, cian y rosa, elegibles en Perfil y guardados en el teléfono                                  |
-| M2. Persistencia local       | ✅ Terminado | SQLite con migraciones, biblioteca de ejercicios, pestaña Ejercicios con búsqueda y filtro, unidad kg/lb    |
-| **M3. Entrenamiento activo** | ⏭️ Siguiente | Primer momento en que la app sirve en el gimnasio                                                           |
-| M4. Rutinas y ejercicios     | Pendiente    | Ejercicios personalizados, creador de rutinas, superseries                                                  |
-| M5. Historial y progreso     | Pendiente    | Récords, gráficos, peso corporal y medidas                                                                  |
-| M6. Cuenta y sincronización  | Pendiente    | Supabase, RLS, cola de sincronización                                                                       |
-| M7. Pulido y lanzamiento     | Pendiente    | Exportar/importar, recordatorios, fotos, EAS                                                                |
+| Hito                         | Estado       | Qué deja                                                                                                     |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| M0. Base                     | ✅ Terminado | Proyecto Expo SDK 57, TypeScript estricto, ESLint con reglas de capas, Jest, CI, tema, idiomas y 5 pestañas  |
+| M1. Motor de dominio         | ✅ Terminado | Conversión kg/lb, volumen, 1RM, récords y estados del entrenamiento, con 100 % de cobertura de ramas         |
+| Extra: colores de acento     | ✅ Terminado | Azul, violeta, cian y rosa, elegibles en Perfil y guardados en el teléfono                                   |
+| M2. Persistencia local       | ✅ Terminado | SQLite con migraciones, biblioteca de ejercicios, pestaña Ejercicios con búsqueda y filtro, unidad kg/lb     |
+| M3. Entrenamiento activo     | ✅ Terminado | Registrar entrenamientos: series en un toque, rendimiento anterior, descanso, resumen con récords, historial |
+| **M4. Rutinas y ejercicios** | ⏭️ Siguiente | Ejercicios personalizados, creador de rutinas, superseries                                                   |
+| M5. Historial y progreso     | Pendiente    | Récords, gráficos, peso corporal y medidas                                                                   |
+| M6. Cuenta y sincronización  | Pendiente    | Supabase, RLS, cola de sincronización                                                                        |
+| M7. Pulido y lanzamiento     | Pendiente    | Exportar/importar, recordatorios, fotos, EAS                                                                 |
 
-## Siguiente: M3, entrenamiento activo
+## Qué dejó M3
 
-1. Serializar las escrituras en la base antes de guardar series (ARCHITECTURE.md, "Pendiente para M3").
-2. Repositorios y servicios de entrenamientos: iniciar, agregar ejercicio, registrar y editar series, terminar. Cada acción se guarda al instante.
-3. Pantalla de entrenamiento activo: registrar una serie en pocos toques, con el rendimiento anterior a la vista.
-4. Temporizador de descanso, resumen con récords y recuperación tras un cierre inesperado.
-5. Inicio e Historial funcionando, y el primer flujo E2E con Maestro.
+- **Inicio:** "Empezar entrenamiento", o "Continuar" con el tiempo y las series si quedó uno abierto.
+- **Entrenamiento activo** (`/workout`): cronómetro sin pausas, pausar y reanudar, agregar ejercicios desde la biblioteca, rendimiento anterior de cada uno, series con peso, reps y RIR (o reps, segundos o metros según el ejercicio) y marca de calentamiento. La próxima serie viene rellena con la anterior: repetirla es un toque. Tocar una serie la edita o la borra.
+- **Descanso:** 90 s tras cada serie, con −15, +15, pausa, saltar y vibración al terminar.
+- **Terminar:** confirmación y resumen con duración, ejercicios, series, volumen y récords. Sin series, se ofrece descartar.
+- **Historial:** lista de entrenamientos terminados y detalle de cada uno.
+- **Recuperación:** todo se guarda al instante; tras cerrar la app, el entrenamiento abierto sigue ahí.
+- Probado de punta a punta en la versión web: dos entrenamientos, rendimiento anterior, récord de peso e historial.
+
+**Queda pendiente de M3:** el flujo E2E con Maestro. Necesita un emulador o un teléfono conectado por cable al computador; se hace cuando se prepare la primera build de desarrollo (M7 o antes).
+
+## Siguiente: M4, rutinas y ejercicios
+
+1. Ejercicios personalizados (crear, editar, ocultar), con los tipos de registro que faltan (ver abajo).
+2. Creador de rutinas: ejercicios en orden, series y reps objetivo, descanso por ejercicio.
+3. Empezar un entrenamiento desde una rutina, copiando su nombre (_snapshot_).
+4. Superseries (A1, A2) en rutinas y en el entrenamiento activo.
+5. Descanso por defecto configurable en Perfil.
 
 ## Hecho después de M2
 
@@ -42,11 +54,15 @@ Estado al 28 de septiembre de 2026. El plan completo y sus razones están en [`p
 - Rutas en `src/app/` (convención de Expo SDK 57). React Native 0.86 y TypeScript 6.0, los que fija la plantilla.
 - M2: los ajustes (acento, unidad) siguen en el almacén clave-valor; no hay tabla `user_settings` hasta que la sincronización (M6) la necesite. Así hay un solo lugar para cada ajuste.
 - M2: cada ejercicio guarda su nombre en español y en inglés (`name_es`, `name_en`) para buscar en los dos idiomas. Los personalizados (M4) llevarán el mismo nombre en ambas.
+- M3: entrenamiento libre (sin rutina) primero; las rutinas llegan en M4. Nunca hay dos entrenamientos abiertos: "Empezar" retoma el que quedó.
+- M3: solo se editan entrenamientos abiertos. Corregir uno terminado desde el historial queda para M5.
+- M3: los récords se calculan contra el historial al mostrar el resumen; guardarlos en una tabla llega con M5 (gráficos).
+- M3: las rutas tipadas de Expo Router están apagadas (`app.json`). En Windows el generador toma archivos de `src/` como rutas y rompe la revisión de tipos; el CI nunca las revisó.
 
 ## Notas para trabajar en el proyecto
 
 - Instala dependencias con `npx expo install <paquete>` para que calcen con SDK 57. En entornos donde `api.expo.dev` está bloqueado, antepone `EXPO_OFFLINE=1`.
 - Antes de dar algo por terminado: `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm test`. El CI corre lo mismo.
 - La versión web (`npx expo export --platform web`) sirve para revisar pantallas sin teléfono. Requiere las cabeceras de aislamiento de origen descritas en [`ARCHITECTURE.md`](ARCHITECTURE.md). En Windows, `npx expo start --web` falla al empaquetar el worker de expo-sqlite ("Worker chunk not found"); la exportación sí funciona.
-- Probada en un Android real con Expo Go (28 de septiembre de 2026, antes de M2). Tras cambios en `babel.config.js` o `metro.config.js`, reinicia con `npx expo start --clear`.
+- Probada en un Android real con Expo Go (28 de septiembre de 2026, antes de M2). M2 y M3 se probaron en la versión web; falta confirmarlos en el teléfono. Tras cambios en `babel.config.js` o `metro.config.js`, reinicia con `npx expo start --clear`.
 - La biblioteca incluida se edita en `src/db/seed/exercise-catalog.ts`. Un slug nunca se renombra ni se quita: los entrenamientos guardados lo usan.

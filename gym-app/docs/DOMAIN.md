@@ -62,3 +62,29 @@ planned / active / paused ─abandon→ abandoned
 - Una transición no permitida devuelve el error `invalid_transition`. Una hora anterior al inicio o a la pausa devuelve `time_went_backwards`.
 - `activeDurationMs()` descuenta todas las pausas, incluida una pausa abierta.
 - Las horas son milisegundos UTC.
+
+## Datos de una serie (`set-input.ts`)
+
+| Campo    | Regla                                                                            |
+| -------- | -------------------------------------------------------------------------------- |
+| Peso     | Número ≥ 0; se guarda en kg y el tope de 1.500 kg se revisa después de convertir |
+| Reps     | Entero ≥ 0, sin máximo (AMRAP incluido)                                          |
+| RIR      | Entero de 0 a 10, opcional                                                       |
+| RPE      | De 1 a 10 en pasos de 0,5, opcional                                              |
+| Segundos | Entero ≥ 1; obligatorio en ejercicios de tiempo                                  |
+| Metros   | Mayor que 0; obligatorio en ejercicios de distancia                              |
+
+- Se acepta coma o punto decimal ("82,5" y "82.5").
+- Cada tipo de ejercicio pide solo sus campos: peso y reps, solo reps, tiempo, o distancia (con tiempo opcional). Lo que no aplica se guarda vacío.
+
+## Descanso (`rest-timer.ts`)
+
+- 90 s por defecto, con ajustes de ±15 s que nunca bajan de cero.
+- Se guarda la hora de término, no los segundos restantes: sigue exacto aunque la pantalla no se actualice.
+
+## Resumen de un entrenamiento (`workout.ts`)
+
+- **Duración:** tiempo activo, sin las pausas.
+- **Series:** las de trabajo; el calentamiento no cuenta.
+- **Volumen:** suma de los ejercicios con peso, con las reglas de "Volumen".
+- **Récords:** contra los entrenamientos terminados que empezaron antes (reglas de "Récords personales"). Si un ejercicio aparece dos veces en el mismo entrenamiento, cuenta como uno.

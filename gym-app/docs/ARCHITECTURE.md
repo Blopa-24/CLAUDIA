@@ -1,6 +1,6 @@
 # Arquitectura
 
-Describe lo que está implementado hoy (hitos M0, M1 y M2). Lo planificado está en [`propuesta-inicial.md`](propuesta-inicial.md).
+Describe lo que está implementado hoy (hitos M0 a M3). Lo planificado está en [`propuesta-inicial.md`](propuesta-inicial.md).
 
 ## Stack
 
@@ -26,7 +26,8 @@ Las dependencias nativas se instalan con `npx expo install` (ver `AGENTS.md`), p
 ```
 src/app/            rutas de Expo Router (delgadas: solo montan pantallas)
 src/features/*/ui   pantallas y componentes de cada función
-src/features/*/hooks conectan pantallas con datos (hoy leen del repositorio; los servicios llegan con M3)
+src/features/*/hooks conectan pantallas con datos: cargan, llaman servicios y vuelven a leer
+src/features/*/services casos de uso con reglas (entrenamiento: iniciar, series, terminar)
 src/db/             esquema, migraciones, repositorios y biblioteca incluida
 src/state/          estado global persistido (preferencias)
 src/ui/             design system: tema y componentes base
@@ -51,7 +52,17 @@ ESLint impone dos reglas (`eslint.config.js`):
 - **Todo es asíncrono.** La API síncrona de expo-sqlite bloquea la app y en web corta los resultados de más de 255 bytes, así que Drizzle usa el driver `sqlite-proxy` sobre `prepareAsync` / `executeForRawResultAsync`.
 - **Web:** la base se abre después de leer las preferencias. expo-sqlite comparte un worker y, si dos bases se abren a la vez, lo inicia dos veces y la segunda falla.
 - **Cambios que rehacen una tabla** (por ejemplo, ampliar un CHECK): el migrador apaga las claves foráneas fuera de la transacción, revisa `PRAGMA foreign_key_check` antes de confirmar y las vuelve a encender, como indica SQLite. drizzle-kit genera mal estas migraciones (copia columnas nuevas desde la tabla vieja y deja los CHECK con el nombre temporal): revisa y corrige el SQL antes de publicarlo, como en `0001_expanded_exercise_library.sql`.
-- **Pendiente para M3:** las transacciones de `sqlite-proxy` mandan `BEGIN` y `COMMIT` como consultas sueltas; si otra consulta llega en medio, queda dentro. Antes de escribir entrenamientos hay que serializar las escrituras o usar `withExclusiveTransactionAsync`.
+- **Una tarea a la vez:** las transacciones de `sqlite-proxy` mandan `BEGIN` y `COMMIT` como consultas sueltas, así que todo acceso pasa por `withDatabase` (`src/db/client.ts`), una cola (`src/db/lock.ts`) que corre una tarea de base de datos después de la otra.
+
+## Entrenamiento (M3)
+
+- **La base es la fuente de verdad.** `useActiveWorkout` lee el entrenamiento abierto desde SQLite y, tras cada acción (serie, edición, pausa), guarda y vuelve a leer. Nada importante vive solo en memoria.
+- **Servicios** (`features/workout/services/workout-service.ts`): reciben la base, un reloj y un generador de IDs (`deps.ts` usa `Date.now` y `expo-crypto`); los tests usan los suyos contra SQLite real.
+- **Reglas:** nunca hay dos entrenamientos abiertos; un entrenamiento terminado no se cambia; registrar una serie en pausa reanuda; borrar es lógico (`deleted_at`).
+- **Estado efímero:** solo el temporizador de descanso vive en memoria (Zustand, `rest-timer-store.ts`), guardado como hora de término.
+- **Formato:** `features/workout/format.ts` (pesos, series, tiempos) y `draft.ts` (qué aparece escrito en la próxima serie).
+- **Navegación:** `/workout`, `/workout/add-exercise` (modal), `/workout/summary/[id]` y `/history/[id]`, fuera de las pestañas. Para volver a Inicio se usa `router.dismissTo("/")`, que no apila copias. Las rutas tipadas están apagadas (ROADMAP, "Decisiones tomadas").
+- **Confirmaciones** con `ConfirmDialog` (`src/ui/components`), no con `Alert`, que no funciona en web ni sigue el tema.
 
 ## Tema
 

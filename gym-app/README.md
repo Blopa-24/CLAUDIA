@@ -2,11 +2,13 @@
 
 App móvil para registrar entrenamientos de gimnasio: rutinas, series, peso corporal, medidas, récords y progreso. Funciona sin conexión.
 
-**Estado:** hitos M0 (base del proyecto), M1 (motor de dominio) y M2 (base de datos local) terminados. Todavía no se pueden registrar entrenamientos; eso llega en M3. La hoja de ruta está en [`docs/propuesta-inicial.md`](docs/propuesta-inicial.md).
+**Estado:** hitos M0 a M3 terminados: ya se pueden registrar entrenamientos. Siguen las rutinas (M4). La hoja de ruta está en [`docs/propuesta-inicial.md`](docs/propuesta-inicial.md).
 
 ## Qué hay hoy
 
-- Cinco pestañas: Inicio, Historial, Ejercicios, Progreso y Perfil. Inicio, Historial y Progreso están marcadas como "Disponible pronto".
+- Cinco pestañas: Inicio, Historial, Ejercicios, Progreso y Perfil. Progreso está marcada como "Disponible pronto".
+- **Entrenar:** Inicio → "Empezar entrenamiento", agregar ejercicios, completar series (la siguiente viene rellena con la anterior), descanso automático y resumen con récords al terminar. Si la app se cierra, el entrenamiento sigue guardado.
+- **Historial:** entrenamientos terminados con su detalle.
 - **Ejercicios:** biblioteca incluida de 223 ejercicios en español e inglés (máquinas, poleas, peso libre, peso corporal, olímpicos y cardio), con búsqueda sin importar tildes y filtro por 17 grupos musculares.
 - **Perfil → Color de acento:** azul, violeta, cian o rosa. **Perfil → Unidad de peso:** kg o lb. Las dos quedan guardadas en el teléfono.
 - Base de datos SQLite en el teléfono, con migraciones versionadas. Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
