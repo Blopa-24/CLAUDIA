@@ -1,11 +1,13 @@
 // Clasificación de ejercicios (skill gym-domain, "EXERCISE CLASSIFICATION") y búsqueda por nombre.
 
-import type { Laterality, TrackingType } from "./types";
+import type { Laterality, LoadCount, TrackingType } from "./types";
 
 /** Músculo principal: es también el filtro de la biblioteca. */
 export const MUSCLES = [
   "chest",
   "back",
+  "lower_back",
+  "traps",
   "shoulders",
   "biceps",
   "triceps",
@@ -14,19 +16,28 @@ export const MUSCLES = [
   "quads",
   "hamstrings",
   "glutes",
+  "adductors",
+  "abductors",
   "calves",
+  "tibialis",
   "full_body",
 ] as const;
 export type Muscle = (typeof MUSCLES)[number];
 
 export const EQUIPMENT = [
   "barbell",
+  "ez_bar",
+  "trap_bar",
   "dumbbell",
   "machine",
   "cable",
   "smith_machine",
   "kettlebell",
+  "landmine",
+  "plate",
+  "medicine_ball",
   "band",
+  "suspension",
   "bodyweight",
   "other",
 ] as const;
@@ -43,6 +54,8 @@ export const MOVEMENT_PATTERNS = [
   "carry",
   "isolation",
   "core",
+  "olympic",
+  "plyometric",
   "cardio",
 ] as const;
 export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
@@ -54,6 +67,7 @@ export const TRACKING_TYPES = [
   "distance",
 ] as const satisfies readonly TrackingType[];
 export const LATERALITIES = ["bilateral", "unilateral"] as const satisfies readonly Laterality[];
+export const LOAD_COUNTS = [1, 2] as const satisfies readonly LoadCount[];
 
 /** Idiomas en que se guarda el nombre de un ejercicio. */
 export type ExerciseLanguage = "es" | "en";
@@ -70,6 +84,8 @@ export interface Exercise {
   movementPattern: MovementPattern;
   laterality: Laterality;
   trackingType: TrackingType;
+  /** Cargas que se mueven a la vez; se anota el peso de una (ver LoadCount). */
+  loadCount: LoadCount;
   notes: string | null;
 }
 

@@ -15,6 +15,7 @@ const CATALOG_COLUMNS = [
   "movement_pattern",
   "laterality",
   "tracking_type",
+  "load_count",
 ] as const;
 
 function catalogRows(now: number): NewExerciseRow[] {
@@ -30,6 +31,7 @@ function catalogRows(now: number): NewExerciseRow[] {
     movementPattern: exercise.movementPattern,
     laterality: exercise.laterality,
     trackingType: exercise.trackingType,
+    loadCount: exercise.loadCount,
     notes: exercise.notes,
     createdAt: now,
     updatedAt: now,
@@ -59,6 +61,7 @@ export async function seedExerciseCatalog(db: AppDatabase, now: number): Promise
         movementPattern: excluded("movement_pattern"),
         laterality: excluded("laterality"),
         trackingType: excluded("tracking_type"),
+        loadCount: excluded("load_count"),
         updatedAt: now,
       },
       setWhere: sql.join(

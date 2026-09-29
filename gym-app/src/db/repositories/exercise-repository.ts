@@ -22,6 +22,7 @@ export function toExercise(row: ExerciseRow): Exercise {
     movementPattern: row.movementPattern,
     laterality: row.laterality,
     trackingType: row.trackingType,
+    loadCount: row.loadCount === 2 ? 2 : 1,
     notes: row.notes,
   };
 }

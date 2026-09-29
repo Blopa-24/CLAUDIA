@@ -25,6 +25,7 @@ function exercise(es: string, en: string, primaryMuscle: Muscle, equipment: Equi
     movementPattern: "isolation",
     laterality: "bilateral",
     trackingType: "weight_reps",
+    loadCount: 1,
     notes: null,
   };
 }

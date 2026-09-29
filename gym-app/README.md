@@ -7,7 +7,7 @@ App móvil para registrar entrenamientos de gimnasio: rutinas, series, peso corp
 ## Qué hay hoy
 
 - Cinco pestañas: Inicio, Historial, Ejercicios, Progreso y Perfil. Inicio, Historial y Progreso están marcadas como "Disponible pronto".
-- **Ejercicios:** biblioteca incluida de 64 ejercicios en español e inglés, con búsqueda (sin importar tildes) y filtro por músculo.
+- **Ejercicios:** biblioteca incluida de 223 ejercicios en español e inglés (máquinas, poleas, peso libre, peso corporal, olímpicos y cardio), con búsqueda sin importar tildes y filtro por 17 grupos musculares.
 - **Perfil → Color de acento:** azul, violeta, cian o rosa. **Perfil → Unidad de peso:** kg o lb. Las dos quedan guardadas en el teléfono.
 - Base de datos SQLite en el teléfono, con migraciones versionadas. Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - Modo claro y oscuro según el teléfono, y textos en español o inglés según el idioma del teléfono.

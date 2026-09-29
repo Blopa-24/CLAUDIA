@@ -29,7 +29,7 @@ import {
   type Muscle,
   TRACKING_TYPES,
 } from "@/domain/exercise";
-import type { SetType } from "@/domain/types";
+import type { LoadCount, SetType } from "@/domain/types";
 import type { WeightUnit } from "@/domain/units";
 import type { SessionStatus } from "@/domain/workout-session";
 
@@ -79,6 +79,8 @@ export const exercises = sqliteTable(
     movementPattern: text("movement_pattern", { enum: MOVEMENT_PATTERNS }).notNull(),
     laterality: text("laterality", { enum: LATERALITIES }).notNull(),
     trackingType: text("tracking_type", { enum: TRACKING_TYPES }).notNull(),
+    /** Cargas iguales que se mueven a la vez (dos mancuernas = 2); se anota el peso de una. */
+    loadCount: integer("load_count").$type<LoadCount>().notNull().default(1),
     notes: text("notes"),
     ...timestamps,
   },
@@ -88,6 +90,7 @@ export const exercises = sqliteTable(
     check("exercises_movement_pattern", oneOf(table.movementPattern, MOVEMENT_PATTERNS)),
     check("exercises_laterality", oneOf(table.laterality, LATERALITIES)),
     check("exercises_tracking_type", oneOf(table.trackingType, TRACKING_TYPES)),
+    check("exercises_load_count", sql`${table.loadCount} IN (1, 2)`),
     check(
       "exercises_names",
       sql`length(trim(${table.nameEs})) > 0 AND length(trim(${table.nameEn})) > 0`,

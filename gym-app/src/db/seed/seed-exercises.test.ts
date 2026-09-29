@@ -12,9 +12,33 @@ import { seedExerciseCatalog } from "./seed-exercises";
 const T0 = Date.UTC(2026, 8, 28);
 const T1 = T0 + 60_000;
 
+// Slugs ya publicados (versión de M2): los entrenamientos guardados los usan, nunca se quitan.
+// prettier-ignore
+const PUBLISHED_SLUGS = ["barbell-bench-press", "incline-barbell-bench-press", "dumbbell-bench-press", "incline-dumbbell-press", "machine-chest-press", "dumbbell-fly", "cable-crossover", "push-up", "deadlift", "pull-up", "chin-up", "lat-pulldown", "barbell-row", "one-arm-dumbbell-row", "seated-cable-row", "t-bar-row", "back-extension", "overhead-press", "seated-dumbbell-shoulder-press", "arnold-press", "dumbbell-lateral-raise", "cable-lateral-raise", "reverse-dumbbell-fly", "face-pull", "barbell-curl", "dumbbell-curl", "hammer-curl", "incline-dumbbell-curl", "preacher-curl", "cable-curl", "triceps-pushdown", "overhead-triceps-extension", "skull-crusher", "close-grip-bench-press", "parallel-bar-dip", "wrist-curl", "reverse-wrist-curl", "back-squat", "front-squat", "goblet-squat", "hack-squat", "leg-press", "leg-extension", "bulgarian-split-squat", "walking-lunge", "romanian-deadlift", "lying-leg-curl", "seated-leg-curl", "nordic-curl", "barbell-hip-thrust", "glute-bridge", "cable-glute-kickback", "machine-hip-abduction", "standing-calf-raise", "seated-calf-raise", "plank", "crunch", "hanging-leg-raise", "cable-crunch", "ab-wheel-rollout", "kettlebell-swing", "rowing-machine", "treadmill-run", "stationary-bike"];
+
 describe("catálogo de ejercicios", () => {
-  it("tiene unos 60 ejercicios", () => {
-    expect(EXERCISE_CATALOG.length).toBeGreaterThanOrEqual(55);
+  it("tiene más de 200 ejercicios", () => {
+    expect(EXERCISE_CATALOG.length).toBeGreaterThan(200);
+  });
+
+  it("conserva todos los slugs ya publicados", () => {
+    const slugs = new Set(EXERCISE_CATALOG.map((e) => e.slug));
+    for (const slug of PUBLISHED_SLUGS) expect(slugs).toContain(slug);
+  });
+
+  it("solo marca dos cargas en ejercicios con peso de mancuernas, kettlebells o poleas", () => {
+    for (const entry of EXERCISE_CATALOG.filter((e) => e.load === 2)) {
+      expect(["dumbbell", "kettlebell", "cable"]).toContain(entry.equipment);
+      expect(entry.tracking ?? "weight_reps").toBe("weight_reps");
+    }
+  });
+
+  it("marca con dos cargas los presses y curls con dos mancuernas", () => {
+    const loadOf = (slug: string) => EXERCISE_CATALOG.find((e) => e.slug === slug)?.load ?? 1;
+    expect(loadOf("dumbbell-bench-press")).toBe(2);
+    expect(loadOf("dumbbell-curl")).toBe(2);
+    expect(loadOf("one-arm-dumbbell-row")).toBe(1);
+    expect(loadOf("goblet-squat")).toBe(1);
   });
 
   it("no repite slugs ni nombres en ningún idioma", () => {
@@ -74,6 +98,7 @@ describe("seedExerciseCatalog", () => {
       movementPattern: "horizontal_pull",
       laterality: "unilateral",
       trackingType: "weight_reps",
+      loadCount: 1,
       notes: null,
     });
   });

@@ -20,6 +20,7 @@ function row(overrides: Partial<NewExerciseRow> = {}): NewExerciseRow {
     movementPattern: "isolation",
     laterality: "bilateral",
     trackingType: "weight_reps",
+    loadCount: 1,
     notes: "Agarre neutro",
     createdAt: NOW,
     updatedAt: NOW,
@@ -52,6 +53,7 @@ describe("exercise-repository", () => {
         movementPattern: "isolation",
         laterality: "bilateral",
         trackingType: "weight_reps",
+        loadCount: 1,
         notes: "Agarre neutro",
       },
     ]);

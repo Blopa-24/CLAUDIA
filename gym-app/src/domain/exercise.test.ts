@@ -17,6 +17,7 @@ function exercise(overrides: Partial<Exercise> & Pick<Exercise, "name">): Exerci
     movementPattern: "horizontal_push",
     laterality: "bilateral",
     trackingType: "weight_reps",
+    loadCount: 1,
     notes: null,
     ...overrides,
   };
