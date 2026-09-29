@@ -41,7 +41,7 @@
       "expo-sqlite"
     ],
     "experiments": {
-      "typedRoutes": true,
+      "typedRoutes": false,
       "reactCompiler": true
     },
     "backgroundColor": "#0e1116"
