@@ -66,10 +66,13 @@ export function HistoryScreen() {
         renderItem={({ item: { workout, summary } }) => {
           const date = formatWorkoutDate(workout.timing.startedAt ?? 0, i18n.language);
           const details = [
+            workout.routineName,
             formatElapsed(summary.durationMs),
             t("history.exercises", { count: summary.exerciseCount }),
             formatVolume(summary.volumeKg, unit, i18n.language),
-          ].join(" · ");
+          ]
+            .filter(Boolean)
+            .join(" · ");
           return (
             <Pressable
               accessibilityRole="button"

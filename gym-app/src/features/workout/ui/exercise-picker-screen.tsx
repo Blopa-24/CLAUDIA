@@ -8,6 +8,7 @@ import { AppText } from "@/ui/components";
 import { useTheme } from "@/ui/theme";
 
 import { addExerciseToOpenWorkout } from "../hooks/use-workout-data";
+import { useWorkoutFocus } from "../state/workout-focus-store";
 
 /** La biblioteca en modo "elegir": tocar un ejercicio lo agrega al entrenamiento y vuelve. */
 export function ExercisePickerScreen() {
@@ -45,7 +46,9 @@ export function ExercisePickerScreen() {
           setFailed(false);
           addExerciseToOpenWorkout(exercise, name)
             .then((added) => {
-              if (added) {
+              if (added !== null) {
+                // El recién agregado pasa a ser el ejercicio en curso.
+                useWorkoutFocus.getState().focus(added);
                 // Si se abrió directo (sin pantalla anterior), igual vuelve al entrenamiento.
                 if (router.canGoBack()) router.back();
                 else router.replace("/workout");

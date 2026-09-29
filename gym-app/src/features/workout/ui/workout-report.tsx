@@ -84,6 +84,13 @@ function ReportView({
     meters: t("workout.metersUnit"),
   };
 
+  const subtitle = [
+    workout.routineName,
+    variant === "finished" ? formatWorkoutDate(workout.timing.startedAt ?? 0, language) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const stats = [
     { label: t("summary.duration"), value: formatElapsed(summary.durationMs) },
     { label: t("summary.exercises"), value: String(summary.exerciseCount) },
@@ -107,11 +114,7 @@ function ReportView({
             ? t("summary.doneTitle")
             : formatWorkoutDate(workout.timing.startedAt ?? 0, language)}
         </AppText>
-        {variant === "finished" ? (
-          <AppText tone="secondary">
-            {formatWorkoutDate(workout.timing.startedAt ?? 0, language)}
-          </AppText>
-        ) : null}
+        {subtitle ? <AppText tone="secondary">{subtitle}</AppText> : null}
       </View>
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", rowGap: spacing.lg }}>

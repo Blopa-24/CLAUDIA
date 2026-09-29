@@ -5,15 +5,18 @@ import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { activeDurationMs } from "@/domain/workout-session";
-import type { Workout, WorkoutSet } from "@/domain/workout";
-import { restSecondsFor, usePreferences } from "@/state/preferences";
+import type { Workout, WorkoutExercise, WorkoutSet } from "@/domain/workout";
+import { usePreferences } from "@/state/preferences";
 import { AppButton, AppText, ConfirmDialog, EmptyState, Screen } from "@/ui/components";
 import { useNow } from "@/ui/hooks/use-now";
 import { useTheme } from "@/ui/theme";
 
 import { formatElapsed } from "../format";
 import { type ActionOutcome, useActiveWorkout } from "../hooks/use-active-workout";
+import { currentExerciseId } from "../current-exercise";
+import { restForExercise } from "../rest-choice";
 import { useRestTimer } from "../state/rest-timer-store";
+import { useWorkoutFocus } from "../state/workout-focus-store";
 
 import { ExerciseBlock } from "./exercise-block";
 import { RestTimerBar } from "./rest-timer-bar";
@@ -91,7 +94,11 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
   const restAutoStart = usePreferences((s) => s.restAutoStart);
   const restSeconds = usePreferences((s) => s.restSeconds);
   const restByExercise = usePreferences((s) => s.restByExercise);
-  const skipRest = useRestTimer((s) => s.skip);
+  const chosenRest = useRestTimer((s) => s.chosen);
+  const resetRest = useRestTimer((s) => s.reset);
+  const focusId = useWorkoutFocus((s) => s.focusId);
+  const focus = useWorkoutFocus((s) => s.focus);
+  const currentId = currentExerciseId(workout.exercises, focusId);
   const hasTimer = useRestTimer((s) => s.timer !== null);
   const [dialog, setDialog] = useState<"finish" | "discard" | null>(null);
   const paused = workout.timing.status === "paused";
@@ -101,13 +108,16 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
 
   /** Guarda la serie y deja corriendo (o preparado) el descanso de ese ejercicio. */
   const complete = async (
-    workoutExerciseId: string,
-    exerciseId: string,
+    entry: WorkoutExercise,
     draft: Parameters<typeof actions.completeSet>[1],
   ) => {
-    const outcome = await actions.completeSet(workoutExerciseId, draft);
+    const outcome = await actions.completeSet(entry.id, draft);
     if (outcome.ok) {
-      const seconds = restSecondsFor({ restSeconds, restByExercise }, exerciseId);
+      const exerciseId = entry.exercise.id;
+      const seconds = restForExercise(exerciseId, entry.restS, chosenRest, {
+        restSeconds,
+        restByExercise,
+      });
       if (restAutoStart) startRest(seconds, exerciseId);
       else prepareRest(seconds, exerciseId);
     }
@@ -118,7 +128,8 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
     setDialog(null);
     const outcome: ActionOutcome = await actions.changeStatus(event);
     if (!outcome.ok) return;
-    skipRest();
+    resetRest();
+    focus(null);
     if (event === "finish") router.replace(`/workout/summary/${workout.id}`);
     else router.dismissTo("/");
   };
@@ -199,6 +210,11 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
           paddingBottom: spacing.xxl + (hasTimer ? 0 : insets.bottom),
         }}
       >
+        {workout.routineName ? (
+          <AppText variant="heading" accessibilityRole="header" style={{ paddingTop: spacing.lg }}>
+            {workout.routineName}
+          </AppText>
+        ) : null}
         {workout.exercises.length === 0 ? (
           <View style={{ paddingVertical: spacing.xxl, gap: spacing.sm }}>
             <AppText variant="title" accessibilityRole="header">
@@ -220,11 +236,23 @@ function WorkoutView({ workout, previous, failed, onDismissFailure, actions }: W
                 previous={previous.get(entry.exercise.id)}
                 unit={unit}
                 language={i18n.language}
-                onComplete={(draft) => complete(entry.id, entry.exercise.id, draft)}
+                onComplete={(draft) => complete(entry, draft)}
                 onEdit={actions.editSet}
                 onDelete={actions.deleteSet}
                 onRemove={() => void actions.removeExercise(entry.id)}
-                onSetFinished={(finished) => void actions.setExerciseFinished(entry.id, finished)}
+                mode={
+                  entry.completedAt !== null
+                    ? "finished"
+                    : entry.id === currentId
+                      ? "open"
+                      : "pending"
+                }
+                onFocus={() => focus(entry.id)}
+                onSetFinished={(finished) => {
+                  // Reabrir un ejercicio lo vuelve el ejercicio en curso.
+                  if (!finished) focus(entry.id);
+                  void actions.setExerciseFinished(entry.id, finished);
+                }}
               />
             </View>
           ))

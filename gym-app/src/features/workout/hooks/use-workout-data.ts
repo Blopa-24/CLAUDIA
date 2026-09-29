@@ -31,12 +31,13 @@ export async function startOrResumeWorkout(): Promise<string> {
   return workoutId;
 }
 
-/** Agrega un ejercicio al entrenamiento abierto. false si no hay ninguno abierto. */
-export function addExerciseToOpenWorkout(exercise: Exercise, name: string): Promise<boolean> {
+/** Agrega un ejercicio al entrenamiento abierto y devuelve su ID; null si no hay uno abierto. */
+export function addExerciseToOpenWorkout(exercise: Exercise, name: string): Promise<string | null> {
   return withDatabase(async (db) => {
     const id = await getOpenWorkoutId(db);
-    if (id === null) return false;
-    return (await addExercise(db, deviceDeps, id, exercise, name)).ok;
+    if (id === null) return null;
+    const added = await addExercise(db, deviceDeps, id, exercise, name);
+    return added.ok ? added.value : null;
   });
 }
 

@@ -16,6 +16,8 @@ interface RestTimerState {
   timer: RestTimer | null;
   /** Ejercicio del que viene el descanso: al elegir otra duración, se recuerda para él. */
   exerciseId: string | null;
+  /** Duración elegida en la barra durante este entrenamiento, por ejercicio: manda sobre todo. */
+  chosen: Record<string, number>;
   /** Empieza a contar de inmediato. */
   start: (seconds: number, exerciseId: string | null) => void;
   /** Lo deja listo, esperando que la persona lo inicie. */
@@ -27,17 +29,25 @@ interface RestTimerState {
   resume: () => void;
   adjust: (deltaS: number) => void;
   skip: () => void;
+  /** Al terminar o descartar el entrenamiento: olvida el descanso y las duraciones elegidas. */
+  reset: () => void;
 }
 
 export const useRestTimer = create<RestTimerState>()((set) => ({
   timer: null,
   exerciseId: null,
+  chosen: {},
   start: (seconds, exerciseId) => set({ timer: startRest(Date.now(), seconds), exerciseId }),
   prepare: (seconds, exerciseId) => set({ timer: readyRest(seconds), exerciseId }),
-  choose: (seconds) => set({ timer: startRest(Date.now(), seconds) }),
+  choose: (seconds) =>
+    set(({ exerciseId, chosen }) => ({
+      timer: startRest(Date.now(), seconds),
+      chosen: exerciseId === null ? chosen : { ...chosen, [exerciseId]: seconds },
+    })),
   pause: () => set(({ timer }) => ({ timer: timer && pauseRest(timer, Date.now()) })),
   resume: () => set(({ timer }) => ({ timer: timer && resumeRest(timer, Date.now()) })),
   adjust: (deltaS) =>
     set(({ timer }) => ({ timer: timer && adjustRest(timer, Date.now(), deltaS) })),
   skip: () => set({ timer: null, exerciseId: null }),
+  reset: () => set({ timer: null, exerciseId: null, chosen: {} }),
 }));

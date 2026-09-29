@@ -12,6 +12,8 @@ import { draftFromSet, nextDraft } from "../draft";
 import { formatSet, type SetLabels } from "../format";
 import type { ActionOutcome } from "../hooks/use-active-workout";
 
+import { useFormatTarget } from "@/features/routines/ui/use-format-target";
+
 import { SetEditor } from "./set-editor";
 
 export interface ExerciseBlockProps {
@@ -25,6 +27,13 @@ export interface ExerciseBlockProps {
   onRemove: () => void;
   /** Terminar (true) lo pliega en una línea; reabrir (false) lo vuelve a mostrar completo. */
   onSetFinished: (finished: boolean) => void;
+  /**
+   * "open": el ejercicio en curso; "pending": sin terminar, esperando su turno (una línea);
+   * "finished": terminado (una línea). Por defecto se deduce de completedAt.
+   */
+  mode?: "open" | "pending" | "finished";
+  /** Tocar un ejercicio pendiente lo vuelve el ejercicio en curso. */
+  onFocus?: () => void;
 }
 
 /**
@@ -32,10 +41,42 @@ export interface ExerciseBlockProps {
  * línea para que la pantalla muestre solo el ejercicio actual. Tocar la línea lo reabre.
  */
 export function ExerciseBlock(props: ExerciseBlockProps) {
-  return props.entry.completedAt !== null ? (
-    <FinishedExercise {...props} />
-  ) : (
-    <OpenExercise {...props} />
+  const mode = props.mode ?? (props.entry.completedAt !== null ? "finished" : "open");
+  if (mode === "finished") return <FinishedExercise {...props} />;
+  if (mode === "pending") return <PendingExercise {...props} />;
+  return <OpenExercise {...props} />;
+}
+
+/** Un ejercicio que todavía no se hace (por ejemplo, el siguiente de la rutina). */
+function PendingExercise({ entry, onFocus }: ExerciseBlockProps) {
+  const { t } = useTranslation();
+  const { colors, spacing } = useTheme();
+  const formatTarget = useFormatTarget();
+  const target = entry.target ? formatTarget(entry.target) : "";
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t("workout.pendingExercise", { name: entry.nameSnapshot })}
+      onPress={onFocus}
+      style={({ pressed }) => ({
+        minHeight: 56,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.md,
+        paddingVertical: spacing.md,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <AppText style={{ color: colors.textMuted, fontSize: 18 }}>○</AppText>
+      <View style={{ flex: 1, gap: 2 }}>
+        <AppText style={{ fontWeight: "600" }}>{entry.nameSnapshot}</AppText>
+        {target ? (
+          <AppText variant="small" tone="secondary">
+            {t("workout.target", { target })}
+          </AppText>
+        ) : null}
+      </View>
+    </Pressable>
   );
 }
 
@@ -102,6 +143,7 @@ function OpenExercise({
   const tracking = trackingOf(entry.exercise);
   const describe = useSetDescriber(entry, unit, language);
   const editing = entry.sets.find((set) => set.id === editingId);
+  const formatTarget = useFormatTarget();
 
   return (
     <View style={{ gap: spacing.md, paddingVertical: spacing.lg }}>
@@ -115,6 +157,11 @@ function OpenExercise({
               ? t("workout.previous", { sets: previous.map(describe).join(" / ") })
               : t("workout.firstTime")}
           </AppText>
+          {entry.target ? (
+            <AppText variant="small" style={{ color: colors.primary, fontWeight: "600" }}>
+              {t("workout.target", { target: formatTarget(entry.target) })}
+            </AppText>
+          ) : null}
         </View>
         <Pressable
           accessibilityRole="button"
