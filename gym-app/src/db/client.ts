@@ -9,6 +9,7 @@ import {
   DATABASE_NAME,
   type SqlRunner,
 } from "./database";
+import { createLock } from "./lock";
 import migrations from "./migrations/migrations";
 import { runMigrations } from "./migrator";
 import { seedExerciseCatalog } from "./seed/seed-exercises";
@@ -48,20 +49,29 @@ function connect(): Promise<AppDatabase> {
   return opening;
 }
 
-/** La base ya preparada. La app solo se muestra después de `prepareDatabase`. */
-export function getDatabase(): AppDatabase {
-  if (connection === null) {
-    throw new Error("La base de datos se usó antes de prepararla (prepareDatabase).");
-  }
-  return connection;
+const lock = createLock();
+
+/**
+ * Usa la base ya preparada. Todas las tareas pasan de a una (ver lock.ts): así una transacción
+ * nunca se mezcla con otra consulta. La app solo se muestra después de `prepareDatabase`.
+ */
+export function withDatabase<T>(task: (db: AppDatabase) => Promise<T>): Promise<T> {
+  return lock(() => {
+    if (connection === null) {
+      throw new Error("La base de datos se usó antes de prepararla (prepareDatabase).");
+    }
+    return task(connection);
+  });
 }
 
 /**
  * Deja la base lista antes de mostrar la app: aplica las migraciones pendientes y carga la
  * biblioteca incluida. Se puede reintentar si falla.
  */
-export async function prepareDatabase(now: number = Date.now()): Promise<void> {
-  const db = await connect();
-  await runMigrations(db, migrations);
-  await seedExerciseCatalog(db, now);
+export function prepareDatabase(now: number = Date.now()): Promise<void> {
+  return lock(async () => {
+    const db = await connect();
+    await runMigrations(db, migrations);
+    await seedExerciseCatalog(db, now);
+  });
 }

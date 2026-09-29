@@ -5,7 +5,7 @@ import type { Exercise } from "@/domain/exercise";
 import { useExerciseLibrary } from "./use-exercise-library";
 
 // La base nativa no existe en los tests: cada caso entrega su propia función de carga.
-jest.mock("@/db/client", () => ({ getDatabase: jest.fn() }));
+jest.mock("@/db/client", () => ({ withDatabase: jest.fn() }));
 
 const bench = { id: "system:barbell-bench-press" } as Exercise;
 

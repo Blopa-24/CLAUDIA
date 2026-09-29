@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getDatabase } from "@/db/client";
+import { withDatabase } from "@/db/client";
 import { listExercises } from "@/db/repositories/exercise-repository";
 import type { Exercise } from "@/domain/exercise";
 
@@ -11,7 +11,7 @@ export type ExerciseLibrary =
 
 // Lectura simple sin reglas: el hook va directo al repositorio. Los servicios aparecen cuando hay
 // reglas que aplicar (M3, entrenamiento activo).
-const loadFromDatabase = (): Promise<Exercise[]> => listExercises(getDatabase());
+const loadFromDatabase = (): Promise<Exercise[]> => withDatabase(listExercises);
 
 /** Carga la biblioteca de ejercicios del teléfono. */
 export function useExerciseLibrary(
