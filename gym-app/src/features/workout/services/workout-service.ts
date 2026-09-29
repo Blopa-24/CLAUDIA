@@ -15,6 +15,7 @@ import {
   loadWorkout,
   loadWorkouts,
   nextSetPosition,
+  setWorkoutExerciseCompletion,
   softDeleteSet,
   softDeleteWorkoutExercise,
   updateSessionTiming,
@@ -239,4 +240,23 @@ export async function listWorkoutHistory(
     workout,
     summary: summarizeWorkout(workout, new Map(), now),
   }));
+}
+
+/**
+ * Terminar un ejercicio lo deja plegado en la pantalla; reabrirlo lo vuelve a mostrar completo.
+ * Solo cambia cómo se ve el entrenamiento: sus series ya están guardadas.
+ */
+export async function setExerciseFinished(
+  db: AppDatabase,
+  deps: ServiceDeps,
+  workoutExerciseId: string,
+  finished: boolean,
+): Promise<Result<null, WorkoutError>> {
+  const owner = await findWorkoutExerciseOwner(db, workoutExerciseId);
+  if (owner === null) return err({ code: "not_found" });
+  const workout = await openWorkout(db, owner.workoutId);
+  if (!workout.ok) return workout;
+  const now = deps.now();
+  await setWorkoutExerciseCompletion(db, workoutExerciseId, finished ? now : null, now);
+  return ok(null);
 }

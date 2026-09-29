@@ -18,6 +18,7 @@ import {
   previousPerformance,
   removeExercise,
   type ServiceDeps,
+  setExerciseFinished,
   startWorkout,
 } from "./workout-service";
 
@@ -136,6 +137,30 @@ describe("workout-service", () => {
       [0, 82.5, 6],
       [2, 80, 5],
     ]);
+  });
+
+  it("terminar un ejercicio lo marca con la hora, y reabrirlo lo desmarca", async () => {
+    const { workoutId } = await startWorkout(test.db, deps);
+    const entry = unwrap(await addExercise(test.db, deps, workoutId, bench, "Press"));
+    unwrap(await completeSet(test.db, deps, entry, draft()));
+    clock += MIN;
+    unwrap(await setExerciseFinished(test.db, deps, entry, true));
+    expect((await getWorkout(test.db, workoutId))?.exercises[0]?.completedAt).toBe(T0 + MIN);
+
+    unwrap(await setExerciseFinished(test.db, deps, entry, false));
+    const reopened = (await getWorkout(test.db, workoutId))?.exercises[0];
+    expect(reopened?.completedAt).toBeNull();
+    expect(reopened?.sets).toHaveLength(1);
+  });
+
+  it("no cambia ejercicios de un entrenamiento terminado", async () => {
+    const { workoutId } = await startWorkout(test.db, deps);
+    const entry = unwrap(await addExercise(test.db, deps, workoutId, bench, "Press"));
+    unwrap(await changeWorkoutStatus(test.db, deps, workoutId, "finish"));
+    expect(await setExerciseFinished(test.db, deps, entry, true)).toEqual({
+      ok: false,
+      error: { code: "not_open" },
+    });
   });
 
   it("quitar un ejercicio lo saca del entrenamiento", async () => {

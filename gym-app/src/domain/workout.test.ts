@@ -1,6 +1,13 @@
 import type { Exercise } from "./exercise";
 import type { SetPerformance } from "./types";
-import { bestsFromHistory, summarizeWorkout, type Workout, type WorkoutSet } from "./workout";
+import {
+  bestsFromHistory,
+  summarizeWorkout,
+  summarySet,
+  type Workout,
+  type WorkoutExercise,
+  type WorkoutSet,
+} from "./workout";
 
 const MIN = 60_000;
 
@@ -65,6 +72,7 @@ function workout(entries: [Exercise, WorkoutSet[]][]): Workout {
       exercise: ex,
       nameSnapshot: ex.name.es,
       position,
+      completedAt: null,
       sets,
     })),
   };
@@ -151,5 +159,32 @@ describe("bestsFromHistory", () => {
     });
     expect(bests?.heaviestWeightKg).toBe(90);
     expect(bests?.bestSessionVolumeKg).toBe(840);
+  });
+});
+
+describe("summarySet", () => {
+  const entry = (ex: Exercise, sets: WorkoutSet[]): WorkoutExercise => ({
+    id: "we",
+    exercise: ex,
+    nameSnapshot: ex.id,
+    position: 0,
+    completedAt: null,
+    sets,
+  });
+
+  it("en ejercicios de peso elige la serie de trabajo más pesada, y a igual peso la de más reps", () => {
+    const sets = [set(100, 3, { type: "warmup" }), set(80, 8), set(85, 5), set(85, 6), set(70, 10)];
+    expect(summarySet(entry(bench, sets))).toEqual(
+      expect.objectContaining({ weightKg: 85, reps: 6 }),
+    );
+  });
+
+  it("en el resto elige la última de trabajo", () => {
+    expect(summarySet(entry(pullUps, [set(null, 12), set(null, 10)]))?.reps).toBe(10);
+  });
+
+  it("si solo hubo calentamiento, usa esas series; sin series, nada", () => {
+    expect(summarySet(entry(bench, [set(40, 10, { type: "warmup" })]))?.weightKg).toBe(40);
+    expect(summarySet(entry(bench, []))).toBeUndefined();
   });
 });

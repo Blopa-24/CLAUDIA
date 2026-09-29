@@ -124,6 +124,7 @@ export async function loadWorkouts(db: AppDatabase, ids: readonly string[]): Pro
       exercise: toExercise(exercise),
       nameSnapshot: entry.exerciseNameSnapshot,
       position: entry.position,
+      completedAt: entry.completedAt,
       sets: setsByEntry.get(entry.id) ?? [],
     });
     entriesBySession.set(entry.sessionId, list);
@@ -334,4 +335,18 @@ export async function exerciseHistory(
     history.set(exerciseId, sessions);
   }
   return history;
+}
+
+/** Marca un ejercicio del entrenamiento como terminado (con la hora) o lo vuelve a abrir (null). */
+export async function setWorkoutExerciseCompletion(
+  db: AppDatabase,
+  id: string,
+  completedAt: number | null,
+  now: number,
+): Promise<void> {
+  await db
+    .update(workoutExercises)
+    .set({ completedAt, updatedAt: now })
+    .where(eq(workoutExercises.id, id))
+    .run();
 }

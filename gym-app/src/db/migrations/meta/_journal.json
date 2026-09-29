@@ -15,6 +15,13 @@
       "when": 1790640391892,
       "tag": "0001_expanded_exercise_library",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790690260145,
+      "tag": "0002_workout_exercise_completion",
+      "breakpoints": true
     }
   ]
 }

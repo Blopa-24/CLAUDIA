@@ -29,6 +29,8 @@ export interface WorkoutExercise {
   /** Nombre al momento de entrenar: el historial no cambia si después se renombra el ejercicio. */
   nameSnapshot: string;
   position: number;
+  /** Cuándo se dio por terminado; null mientras se está haciendo. Solo ordena la pantalla. */
+  completedAt: number | null;
   sets: WorkoutSet[];
 }
 
@@ -117,4 +119,21 @@ export function summarizeWorkout(
     volumeKg,
     records,
   };
+}
+
+/**
+ * La serie que resume un ejercicio ya hecho: la más pesada de trabajo en los de peso (a igual peso,
+ * la de más reps); en el resto, la última de trabajo. Si solo hubo calentamiento, la última.
+ */
+export function summarySet(entry: WorkoutExercise): WorkoutSet | undefined {
+  const working = entry.sets.filter((set) => set.type !== "warmup");
+  const pool = working.length > 0 ? working : entry.sets;
+  if (entry.exercise.trackingType !== "weight_reps") return pool[pool.length - 1];
+  return pool.reduce<WorkoutSet | undefined>((best, set) => {
+    if (!best) return set;
+    const weight = set.weightKg ?? 0;
+    const bestWeight = best.weightKg ?? 0;
+    if (weight !== bestWeight) return weight > bestWeight ? set : best;
+    return (set.reps ?? 0) > (best.reps ?? 0) ? set : best;
+  }, undefined);
 }

@@ -141,6 +141,8 @@ export const workoutExercises = sqliteTable(
     exerciseNameSnapshot: text("exercise_name_snapshot").notNull(),
     position: integer("position").notNull(),
     supersetGroup: integer("superset_group"),
+    /** Cuándo se terminó el ejercicio en el entrenamiento; null mientras se está haciendo. */
+    completedAt: integer("completed_at"),
     notes: text("notes"),
     ...timestamps,
   },
