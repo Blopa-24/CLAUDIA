@@ -3,6 +3,8 @@
 // Reglas:
 // - Peso y reps: volumen = peso (kg) × reps.
 // - Unilateral: las reps se anotan por lado y el peso es por lado, así que se cuentan los dos: × 2.
+// - Dos cargas (dos mancuernas o dos kettlebells): se anota el peso de una, así que × 2.
+//   Una zancada con dos mancuernas es unilateral y de dos cargas: × 4.
 // - Peso corporal (reps_only), tiempo y distancia: no tienen volumen en kg; se devuelve null.
 // - Solo cuentan las series completadas con peso ≥ 0 y reps ≥ 0 conocidos.
 // - El calentamiento no suma al total, salvo que se pida con includeWarmups.
@@ -17,7 +19,7 @@ export function setVolume(set: SetPerformance, exercise: ExerciseTracking): numb
   if (!set.completed || set.weightKg === null || set.reps === null) return null;
   if (!Number.isFinite(set.weightKg) || !Number.isFinite(set.reps)) return null;
   if (set.weightKg < 0 || set.reps < 0) return null;
-  return set.weightKg * set.reps * SIDES[exercise.laterality];
+  return set.weightKg * set.reps * SIDES[exercise.laterality] * exercise.loadCount;
 }
 
 export interface VolumeOptions {

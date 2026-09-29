@@ -1,11 +1,19 @@
 import type { ExerciseTracking, SetPerformance } from "./types";
 import { setVolume, totalVolume } from "./volume";
 
-const barbell: ExerciseTracking = { trackingType: "weight_reps", laterality: "bilateral" };
-const dumbbellRow: ExerciseTracking = { trackingType: "weight_reps", laterality: "unilateral" };
-const pullUp: ExerciseTracking = { trackingType: "reps_only", laterality: "bilateral" };
-const plank: ExerciseTracking = { trackingType: "duration", laterality: "bilateral" };
-const run: ExerciseTracking = { trackingType: "distance", laterality: "bilateral" };
+const tracking = (over: Partial<ExerciseTracking>): ExerciseTracking => ({
+  trackingType: "weight_reps",
+  laterality: "bilateral",
+  loadCount: 1,
+  ...over,
+});
+const barbell = tracking({});
+const dumbbellRow = tracking({ laterality: "unilateral" });
+const dumbbellPress = tracking({ loadCount: 2 });
+const dumbbellLunge = tracking({ laterality: "unilateral", loadCount: 2 });
+const pullUp = tracking({ trackingType: "reps_only" });
+const plank = tracking({ trackingType: "duration" });
+const run = tracking({ trackingType: "distance" });
 
 const set = (over: Partial<SetPerformance> = {}): SetPerformance => ({
   type: "working",
@@ -22,6 +30,14 @@ describe("setVolume", () => {
 
   it("cuenta los dos lados en ejercicios unilaterales", () => {
     expect(setVolume(set({ weightKg: 30, reps: 10 }), dumbbellRow)).toBe(600);
+  });
+
+  it("con dos mancuernas se anota el peso de una y se cuentan las dos", () => {
+    expect(setVolume(set({ weightKg: 30, reps: 10 }), dumbbellPress)).toBe(600);
+  });
+
+  it("zancada con dos mancuernas: dos cargas y dos lados", () => {
+    expect(setVolume(set({ weightKg: 20, reps: 10 }), dumbbellLunge)).toBe(800);
   });
 
   it("acepta decimales sin redondear", () => {

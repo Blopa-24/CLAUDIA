@@ -1,7 +1,11 @@
 import { evaluateSessionRecords, type ExerciseBests, toGrams } from "./personal-records";
 import type { ExerciseTracking, SetPerformance } from "./types";
 
-const bench: ExerciseTracking = { trackingType: "weight_reps", laterality: "bilateral" };
+const bench: ExerciseTracking = {
+  trackingType: "weight_reps",
+  laterality: "bilateral",
+  loadCount: 1,
+};
 const set = (
   weightKg: number,
   reps: number,
@@ -108,7 +112,11 @@ describe("series que no cuentan", () => {
     ["sin peso", set(0, 20)],
     ["con lastre", set(10, 12)],
   ])("no calcula récords en ejercicios de peso corporal (serie %s)", (_name, s) => {
-    const pullUp: ExerciseTracking = { trackingType: "reps_only", laterality: "bilateral" };
+    const pullUp: ExerciseTracking = {
+      trackingType: "reps_only",
+      laterality: "bilateral",
+      loadCount: 1,
+    };
     const r = evaluateSessionRecords(history, [s], pullUp);
     expect(r).toEqual({ bests: history, newRecords: [] });
   });

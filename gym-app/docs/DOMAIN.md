@@ -14,8 +14,10 @@ Funciones puras en `src/domain/`, sin React ni base de datos, cada una con sus t
 | --------------------------------- | ----------------------------------------------- |
 | Peso y reps, bilateral            | peso × reps                                     |
 | Peso y reps, unilateral           | peso × reps × 2 (reps y peso anotados por lado) |
+| Con dos cargas (`loadCount: 2`)   | lo anterior × 2 (se anota el peso de una carga) |
 | Peso corporal, tiempo o distancia | `null`: no tiene volumen en kg                  |
 
+- **Dos mancuernas se anotan con el peso de una** (decidido el 28 de septiembre de 2026). Un press con dos mancuernas de 30 kg se anota "30 kg" y su volumen es 30 × reps × 2. Una zancada con dos mancuernas es unilateral y de dos cargas: × 4. Los récords de peso y el 1RM estimado usan el peso anotado, el de una mancuerna.
 - Solo cuentan series completadas con peso y reps conocidos y no negativos.
 - El total excluye el calentamiento, salvo que se pida `includeWarmups`.
 
